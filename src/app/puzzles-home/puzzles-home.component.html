@@ -1,0 +1,69 @@
+<!-- <app-puzzle-component></app-puzzle-component> -->
+<div class="entire">
+  <h2>Welcome to {{name | puzzlename | titlecase}}</h2>
+  <span class="explination" *ngFor="let line of explination">
+    {{line}} <br/>
+  </span>
+  <br />
+  <fieldset class = "slider">
+    <legend align="center" for="slidersize">Select a Size</legend>
+    <input type="range"
+      id="slidersize"
+      name="size"
+      min="0" max={{maxSize}}
+      value={{sizeIndex}}
+      (input)="changeSize($event.target.value)">
+    <br />
+    <span class="slider-text">{{size | puzzlesize}}</span>
+  </fieldset>
+  <fieldset class="slider">
+    <legend align="center" for="sliderdif">Select a Difficulty</legend>
+    <input class="slider"
+      id="sliderdif"
+      type="range"
+      name="difficulty"
+      min="0" max={{maxDif}}
+      value={{difIndex}}
+      (input)="changeDifficulty($event.target.value)">
+    <br />
+    <span class="slider-text">{{difIndex | difficulty:maxDif}}</span>
+    <br />
+  </fieldset>
+  <fieldset class="stats">
+    <legend align="center" for="stats">Statistics</legend>
+    <!-- <legend class="statslegend">Puzzle Type Statistics</legend> -->
+    <div><label>Global Best Time: </label>{{globalBest | puzzletime:true}}</div>
+    <div><label>Personal Best Time: </label>{{userBest | puzzletime:true}}</div>
+    <!-- <div><label>Personal Best Ranking: </label>{{puzzleTypeStats.personalBestRanking}} / {{puzzleTypeStats.numberOfPlayers}}</div> -->
+    <div><label>Global Average Time: </label>{{globalMedian | puzzletime:true}}</div>
+    <div><label>Personal Average Time: </label>{{userMedian | puzzletime:true}}</div>
+    <!-- <div><label>Personal Average Ranking: </label>{{puzzleTypeStats.personalBestRanking}} / {{puzzleTypeStats.numberOfPlayers}}</div> -->
+  </fieldset>
+  <button #play type="button" (click)="loadPuzzle()">Play Random Puzzle</button>
+  <button #rankings type="button" (click)="toggleRankings()">Toggle Rankings</button>
+
+  <fieldset [class.noshow] = "!showrankings" class="rankings">
+    <table #overall class="table">
+      <tr>
+        <th>#</th>
+        <th (click) = "sortBy('name')">Name</th>
+        <th (click) = "sortBy('numsolved')">Num solved</th>
+        <th (click) = "sortBy('score')">Score</th>
+        <th (click) = "sortBy('avgm')">Average medal</th>
+        <th (click) = "sortBy('numbest')">Num records</th>
+        <th (click) = "sortBy('best')">Best time</th>
+        <th (click) = "sortBy('q50.t')">Average time</th>
+      </tr>
+      <tr *ngFor="let row of list" class = "userrow">
+        <td>{{row.index}}</td>
+        <td>{{row.name}}</td>
+        <td>{{row.numsolved}}</td>
+        <td>{{row.score}}</td>
+        <td>{{row.avgm | medal}}</td>
+        <td>{{row.numbest}}</td>
+        <td>{{row.best | puzzletime: true}}</td>
+        <td>{{row.q50.t | puzzletime: true}}</td>
+      </tr>
+    </table>
+  </fieldset>
+</div>

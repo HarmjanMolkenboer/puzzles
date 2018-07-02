@@ -1,0 +1,206 @@
+<!-- <h1>Welcome to {{title}}</h1> -->
+<!-- <div #playfield id="playfield" class="playfield"> -->
+<svg #puzzle class="puzzle"
+  attr.transform="scale({{scale}})"
+  attr.width="{{horizontal ? 1120 : 750}}"
+  attr.height="{{horizontal ? 750 : 1120}}">
+  <g #gridlayer attr.transform="translate({{controller.getOffsetX()}},{{controller.getOffsetY()}}) scale({{controller.scale}})">
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SELECTED and ERROR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngFor="let sq of controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
+      <rect class="selected" [class.noshow]="!sq.selected" width=100 height=100></rect>
+      <rect class="error" [class.noshow]="!sq.hasError" width=100 height=100></rect>
+    </g>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GRID~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngIf="controller.gridType === 'grid'">
+      <path class="grid" *ngFor="let x of getRange(1,controller.width)"
+        attr.d="M{{100*x}} 0 {{100*x}} {{100*controller.height}}"></path>
+      <path class="grid" *ngFor="let y of getRange(1,controller.height)"
+        attr.d="M0 {{100*y}} {{controller.width*100}} {{100*y}}"></path>
+    </g>
+    <rect class="boundary" attr.width={{100*controller.getWidth()}} attr.height={{100*controller.getHeight()}}></rect>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WALLS and LINKS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngFor="let sq of controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
+      <path class="boundary" [class.noshow]="!sq.hasRightWall()" d="M100 0 L100 100"></path>
+      <path class="boundary" [class.noshow]="!sq.hasDownWall()" d="M0 100 L100 100"></path>
+      <path class="link2" [class.noshow]="!sq.hasRightLink()" attr.stroke="{{sq.rightLinkColor}}" d="M60 50 L140 50"></path>
+      <path class="link2" [class.noshow]="!sq.hasDownLink()" attr.stroke="{{sq.downLinkColor}}" d="M50 60 L50 140"></path>
+    </g>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HIGHLIGHT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g #normal *ngFor="let sq of controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
+      <rect *ngIf="sq.otherSquare === undefined; else magnetsHighlight"
+        class="highlighted" [class.noshow]="!sq.highlighted" width=94 height=94 x=3 y=3></rect>
+      <ng-template #magnetsHighlight>
+        <rect *ngIf="sq.otherSquare.x === sq.x + 1" class="highlighted"
+          [class.noshow]="!sq.highlighted && !sq.otherSquare.highlighted"
+          width=194 height=94 x=3 y=3></rect>
+        <rect *ngIf="sq.otherSquare.y === sq.y + 1" class="highlighted"
+          [class.noshow]="!sq.highlighted && !sq.otherSquare.highlighted"
+          width=94 height=194 x=3 y=3></rect>
+      </ng-template>
+    </g>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SQUAREDRAWINGS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngFor="let sq of controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
+      <g *ngIf="isNumbersPuzzle(); else symbols">
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~BIG NUMBERS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <text class="number" *ngIf="sq.getNumber()!==-1; else smallNumbers" attr.fill={{sq.color}} x=50 y=50>{{sq.getNumber()}}</text>
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~SMALL NUMBERS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <ng-template #smallNumbers>
+          <text class="small-number"
+            *ngFor="let number of sq.getNumbers()"
+            attr.fill={{sq.color}}
+            attr.x="{{controller.getCoordX(number)}}"
+            attr.y="{{controller.getCoordY(number)}}">{{number === 0 ? 'X' : number}}</text>
+        </ng-template>
+      </g>
+      <ng-template #symbols>
+        <path attr.stroke-width = "{{sq.getStrokeWidth()}}"
+          attr.fill="{{sq.color}}" attr.stroke="{{sq.color}}" attr.opacity="{{sq.opacity}}"
+          attr.d="{{sq.getPath()}}"></path>
+      </ng-template>
+    </g>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~BORDERVALUES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngIf="controller.getNumberOfBorderValues() !== 0">
+      <g *ngFor="let row of controller.getAllRows()">
+        <text class="bordervalue"
+          *ngFor="let bv of row.getBorderValues()"
+          attr.fill="{{bv.color}}"
+          attr.x="{{bv.x}}"
+          attr.y="{{bv.y}}">{{bv.solutionValue}}</text>
+      </g>
+    </g>
+</g>
+<!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CONTROLPANEL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv -->
+<svg #controlpanel class="controls"
+  [class.inactive]="activated"
+  attr.x="{{horizontal ? controlPanel.h + 50 : 20}}"
+  attr.y="{{horizontal ? 10 : controlPanel.h + 50}}"
+  attr.width="{{horizontal ? controlPanel.w + 5: controlPanel.h}}"
+  attr.height="{{horizontal ? controlPanel.h + 5 : controlPanel.w+60}}">
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~BUTTONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <svg attr.x = "{{horizontal ? 0 : controlPanel.buttonw / 3}}">
+    <svg *ngFor="let button of controlPanel.buttons; let i=index">
+      <svg class="button-container"
+        attr.x= "{{button.x}}"
+        attr.y= "{{button.y}}">
+        <!-- attr.x= "{{(i % 2) * (controlPanel.buttonw + controlPanel.d)}}"
+        attr.y= "{{(i - (i % 2)) / 2 * (controlPanel.buttonh + controlPanel.d)}}"> -->
+      <rect [class.click-area]="button.active" attr.fill="{{color}}"
+        attr.opacity="{{button.active ? 1 : 0.5}}"
+        attr.width="{{controlPanel.buttonw}}"
+        attr.height="{{controlPanel.buttonh}}"
+        (click)="buttonClicked(button.text, button.active)">
+      </rect>
+      <text class="button-text"
+        attr.x="{{controlPanel.buttonw / 2}}"
+        attr.y="{{controlPanel.buttonh / 2}}">{{button.text}}</text>
+      </svg>
+    </svg>
+  </svg>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~COLORPANEL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <text class="color-text"
+    attr.x="{{horizontal ? controlPanel.w / 2 : controlPanel.w / 1.5}}"
+    attr.y="{{2.3 * (controlPanel.buttonh + controlPanel.d)}}"
+    >Drawing color</text>
+  <svg #colorPanel
+    attr.x="{{horizontal ? 40 : 0}}"
+    attr.y="{{2 * (controlPanel.buttonh + controlPanel.d) + 35 + controlPanel.d}}"
+    attr.width="{{horizontal ? controlPanel.w : 1.5*(controlPanel.w - controlPanel.d)}}"
+    attr.height="{{0.7 * controlPanel.w}}">
+    <circle *ngFor="let colorbtn of controlPanel.colorButtons; let i=index"
+      class="btn-color click-area"
+      attr.r="{{(controlPanel.w - 4 * controlPanel.d) / 8}}"
+      attr.fill="{{colorbtn.color}}"
+      attr.cx = "{{horizontal ? colorbtn.cxh : colorbtn.cxv}}"
+      attr.cy = "{{horizontal ? colorbtn.cyh : colorbtn.cyv}}"
+      (click)=colorButtonClicked(colorbtn.color)></circle>
+  </svg>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~EraseColorButton~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <svg class="button-container"
+    attr.x = "{{horizontal ? 0 : controlPanel.buttonw / 3}}"
+    attr.y= "{{horizontal ? 2 * (controlPanel.buttonh + controlPanel.d) + 35 + 2 * controlPanel.d + 0.5 * controlPanel.w
+                            : controlPanel.w - controlPanel.buttonh}}">
+    <rect [class.click-area]="controlPanel.eraseButton.active" attr.fill="{{color}}"
+      attr.opacity="{{controlPanel.eraseButton.active ? 1 : 0.5}}"
+      attr.width="{{controlPanel.w}}"
+      attr.height="{{controlPanel.buttonh}}"
+      (click)="buttonClicked('Erase color', controlPanel.eraseButton.active)">
+    </rect>
+    <text class="button-text"
+      attr.x="{{controlPanel.w / 2}}"
+      attr.y="{{controlPanel.buttonh / 2}}">ERASE COLOR</text>
+  </svg>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~ELEMENTSPANEL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <svg #elementsPanel
+  attr.x="{{horizontal ? 0 : controlPanel.h - (2 * controlPanel.w + 10 * controlPanel.d) / 3}}"
+  attr.y="{{horizontal ? controlPanel.h - 4 * controlPanel.buttonh - 3 * controlPanel.d : 0}}"></svg>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~NUMBERBUTTONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <svg class="number-buttons"
+    attr.x="{{horizontal ? 0 : controlPanel.h - (2 * controlPanel.w + controlPanel.d) / 3}}"
+    attr.y="{{horizontal ? controlPanel.h - 4 * controlPanel.buttonh - 3 * controlPanel.d : 0}}">
+    <svg *ngFor="let button of controlPanel.numberButtons; let i=index">
+      <svg class="button-container"
+        attr.x= "{{horizontal ? button.xh : button.xv}}"
+        attr.y= "{{horizontal ? button.yh : button.yv}}">
+      <rect attr.fill="{{color}}" class="click-area"
+        attr.width="{{(controlPanel.w - 2 * controlPanel.d) / 3}}"
+        attr.height="{{controlPanel.buttonh}}"
+        (click)="buttonClicked(''+button.number, true)">
+      </rect>
+      <!-- [class.click-area]="button.active"
+      attr.opacity="{{button.active ? 1 : 0.5}}" -->
+      <text class="button-text"
+        attr.x="{{(controlPanel.w - 2 * controlPanel.d) / 6}}"
+        attr.y="{{controlPanel.buttonh / 2}}">{{button.number}}</text>
+      </svg>
+    </svg>
+  </svg>
+</svg>
+<!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~INFOPANEL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv -->
+  <svg #infopanel [class.noshow]="!controller.showResults">
+    <rect width=700 height=700 x=20 y=20 fill=white></rect>
+<!-- ~~~~~~~!!!!~~~~~~~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <text class="info-text" x=70 y=70>Congratulations!!!</text>
+    <text [class.noshow] = "puzzleStatsService.time > puzzleStatsService.puzzleData.best"
+      class="info-text" x=70 y=110>You have set the best time for this puzzle!!!</text>
+    <text [class.noshow] = "puzzleStatsService.time <= puzzleStatsService.puzzleData.best"
+      class="info-text" x=70 y=110>You have solved this puzzle.</text>
+    <text class="info-text" x=70 y=150>Your time is: {{puzzleStatsService.time | puzzletime:true}}</text>
+    <text class="info-text" x=70 y=190>You have received a {{puzzleStatsService.multiplier | medal}} medal</text>
+    <text class="info-text" x=70 y=230>Your score for this puzzle is: {{puzzleStatsService.score}} points.</text>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~STAGE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngIf="{length: infoPanel.times.length, dx:500/infoPanel.times.length, dy:150/infoPanel.times.length} as data"
+      transform="translate(100,370)">
+      <g *ngFor="let time of infoPanel.times; let i=index">
+        <path class="stage"
+          attr.d="M{{data.dx*i}} {{data.dy*(data.length-i)}}
+          L{{data.dx*i}} {{data.dy*(data.length-i-1)}}
+          L{{data.dx*(i+1)}} {{data.dy*(data.length-i-1)}}"></path>
+        <text class="time-text" attr.x="{{data.dx*i}}" y=180>{{time.time | puzzletime:false}}</text>
+<!-- ~~~~~~~~~~~~~~~~~~~~~STICKFIGURE ON STAGE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <path *ngIf="puzzleStatsService.multiplier === time.medal" class="stickfigure"
+          d="M-20 0 L0 -40 L20 0 M0 -40 L0 -70 M-20 -70 L0 -45 L20 -70 M0 -70  A15 15 0 1 0 0 -100 A15 15 0 1 0 0 -70"
+          attr.transform="translate({{data.dx*(i+0.5)}},{{data.dy*(data.length-i-1)}})"></path>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~MEDALTEXT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <text class="medal-text" attr.x="{{data.dx*(i+0.5)}}" attr.y="{{data.dy*(data.length - i - 0.5)}}">{{time.medal | medal}}</text>
+      </g>
+      <path class="stage" d="M0 150 L500 150 L500 0"></path>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~STICKFIGURE OFF STAGE~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <path *ngIf="puzzleStatsService.multiplier === 1" class="stickfigure"
+        d="M-20 0 L0 -40 L20 0 M0 -40 L0 -70 M-20 -40 L0 -65 L20 -40 M0 -70  A15 15 0 1 0 0 -100 A15 15 0 1 0 0 -70"
+        transform="translate(-40,150)"></path>
+      <text class="time-text" attr.x="{{data.dx*data.length}}" y=180>{{puzzleStatsService.best | puzzletime:false}}</text>
+    </g>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~BUTTONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <g *ngFor="let button of infoPanel.buttons">
+      <rect class="click-area" attr.fill="{{color}}" attr.opacity="{{button.active ? 1 : 0.5}}" attr.width="{{button.width}}"
+        attr.height="{{button.height}}" attr.x="{{horizontal ? button.xh : button.xv}}" attr.y="{{horizontal ? button.yh : button.yv}}" (click)="buttonClicked(button.text, button.active)"></rect>
+      <text class="button-text"
+        attr.x="{{(horizontal ? button.xh : button.xv) + button.width/2}}"
+        attr.y="{{(horizontal ? button.yh : button.yv) + button.height/2}}">{{button.text}}</text>
+    </g>
+  </svg>
+</svg>

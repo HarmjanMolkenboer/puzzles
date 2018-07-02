@@ -1,0 +1,76 @@
+@charset "UTF-8";
+.grid {
+  stroke: gray;
+  stroke-width: 4;
+}
+.boundary {
+  stroke: black;
+  stroke-width: 8;
+  fill: transparent;
+  stroke-linecap: square;
+}
+.link2 {
+  stroke-width: 4;
+}
+.highlighted {
+  stroke-width: 6;
+  stroke: gray;
+  fill: transparent;
+}
+.selected {
+  fill: lightblue;
+  opacity: 0.75;
+}
+.error {
+  fill: red;
+  opacity: 0.5;
+}
+.number {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font: 80px sans-serif;
+}
+.small-number {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font: 25px sans-serif;
+  font-weight: bold;
+}
+.bordervalue {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font: 80px sans-serif;
+}
+.puzzle {
+  /*height: 100%;
+  width: 100%;*/
+  /*background-color: white;
+  position: fixed;
+  transform-origin: top left;
+  cursor: default;*/
+  /*position: fixed;*/
+  /*max-height:100%;
+  display: inline-block;*/
+  /*max-width: 100%;*/
+  /*min-height: 100vw;
+  max-height: 100%;
+  width: 100%;*/
+
+  /*width: 100%;
+  display: inline-block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;*/
+}
+.grid-layer {
+  /*display: inline-block;*/
+}
+.square-container{
+  position: relative;
+}
+.square{
+  position: absolute;
+  top: 0;
+  left: 0;
+}

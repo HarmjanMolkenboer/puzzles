@@ -1,0 +1,19 @@
+/**,
+*:before,
+*:after {
+  box-sizing: border-box;
+}*/
+
+.puzzles {
+  display: inline-grid;
+  margin: 0 auto;
+  max-width: 48%;
+  height: auto;
+}
+.puzzlelink {
+  max-width: 100%;
+  height: auto;
+}
+.puzzle:hover {
+  cursor: pointer;
+}

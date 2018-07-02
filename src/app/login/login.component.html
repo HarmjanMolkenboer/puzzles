@@ -1,0 +1,62 @@
+<!-- <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" /> -->
+
+<div *ngIf="loggedIn" class="container">
+  <h2>You're logged in as {{username}}</h2>
+  <form>
+    <input type="text" placeholder="username" [(ngModel)]="name" name="newname"/>
+    <button id="changeNameButton"(click)="changeName()">Change username</button>
+  </form>
+  <br />
+  <button (click)="signOut()">Sign out</button>
+</div>
+
+<div *ngIf="!loggedIn" class="container">
+  <h2>You're currently anonimous.</h2>
+  <h4>Please sign in or create an account to be able to post you're times and compete in the rankings.</h4>
+  <button class="btn btn-info" (click)="signInWithGoogle()">Sign in With Google</button>
+  <br />
+  <p>Or Enter an email and password below and either sign in to an existing account or create a new account</p>
+  <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+    <div class = "form-group" [class.noshow]="!create" id="usernameTextField">
+      <input type="text" class="form-control" id="username" required
+       placeholder="username" [(ngModel)]="username" name="username2" #username2="ngModel">
+    </div>
+    <div id="usernameDanger" [hidden]="username2.valid || username2.pristine"
+        class="alert alert-danger" [class.noshow]="!create">
+      Username is required
+    </div>
+    <div class="form-group">
+      <input type="text" class="form-control" id="email" required
+            placeholder="email" [(ngModel)]="email" name="email2" #email2="ngModel">
+    </div>
+    <div [hidden]="email2.valid || email2.pristine"
+         class="alert alert-danger">
+      Email is required
+    </div>
+    <div class="form-group">
+      <input type="password" class="form-control" id="password" required
+      placeholder="password" [(ngModel)]="password" name="password2" #password2="ngModel">
+    </div>
+    <div [hidden]="password2.valid || password2.pristine"
+         class="alert alert-danger">
+      Password is required
+    </div>
+    <div id="confirmpswTextField"
+        class="form-group" [class.noshow]="!create">
+      <input type="password" class="form-control" id="confirmpassword" required
+      placeholder="confirm password" [(ngModel)]="confirmpassword" name="cpassword" #cpassword="ngModel">
+    </div>
+    <div id="confirmpswDanger" [hidden]="cpassword.valid || cpassword.pristine"
+          class="alert alert-danger" class.noshow="!create">
+      Confirm password is required
+    </div>
+    <div>
+      <button *ngIf="!create" type="submit" class="btn btn-success">Login</button>
+      <button class="btn btn-warning" *ngIf="!create || link" (click)="sendPasswordReset()">Forgot password</button>
+      <button *ngIf="!create" class="btn btn-info" (click)="handleSignUp()">Create new account</button>
+      <button *ngIf="create" type="submit" class="btn btn-info">Sign up</button>
+      <button *ngIf="create" class="btn btn-info" (click)="cancelSignUp()">Cancel</button>
+    </div>
+  </form>
+</div>

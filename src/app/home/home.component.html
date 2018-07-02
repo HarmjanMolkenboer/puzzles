@@ -1,0 +1,6 @@
+<h2>Welcome to Puzzle-Castle</h2>
+<div *ngFor="let puzzletype of puzzletypes" class = "puzzles">
+  <fieldset class="puzzle" (click)= "goToPuzzle(puzzletype)">
+  <img class = "puzzlelink" src = "../../assets/images/{{puzzletype}}.png" alt = {{puzzletype}} title = {{puzzletype}}/>
+  </fieldset>
+</div>

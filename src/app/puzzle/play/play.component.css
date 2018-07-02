@@ -1,0 +1,33 @@
+.play {
+  display: flex;
+}
+@media screen and (orientation:portrait) {
+  .play {
+    flex-wrap: wrap;
+  }
+  .grid {
+    width: 100%;
+    max-width: 65vh;
+    height: 100vw;
+    max-height: 65vh;
+  }
+  .controls {
+    width: 100%;
+    max-width: 65vh;
+  }
+}
+@media screen and (orientation:landscape) {
+  .play {
+    flex-wrap: nowrap;
+  }
+  .grid {
+    height: 100%;
+    max-height: 65vw;
+    width: 100vh;
+    max-width: 65vw;
+  }
+  .controls {
+    width: 33%;
+    max-width: 50vh;
+  }
+}

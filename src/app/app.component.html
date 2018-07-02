@@ -1,0 +1,10 @@
+<nav *ngIf="showNavBar()">
+  <a routerLink="/home" routerLinkActive="active">Home</a>
+  <a *ngIf="isPuzzleActive()" routerLink="/play" routerLinkActive="active">Play</a>
+  <a routerLink="/rankings" routerLinkActive="active">Rankings</a>
+  <a routerLink="/login" routerLinkActive="active" id="loginLink">Login</a>
+  <!-- <a *ngFor="let name of puzzles" routerLink="/{{name}}" routerLinkActive="active">{{name}}</a> -->
+</nav>
+<router-outlet></router-outlet>
+
+ <!-- <router-outlet></router-outlet> -->

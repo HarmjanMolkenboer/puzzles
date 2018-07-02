@@ -1,0 +1,44 @@
+<h2>Show rankings for</h2>
+<select class = "puzzles" (change) = "changePuzzle($event.target.value)">
+   <option *ngFor="let puzzletype of puzzletypes" value={{puzzletype}}>{{puzzletype}}</option>
+</select>
+<select id="sizesDropdown" *ngIf="puzzleName!==undefined" #sizesDropdown class = "sizes" (change) = "changeSize($event.target.value)">
+   <option *ngFor="let size of sizes" value={{size}}>{{size}}</option>
+</select>
+<select #difsDropdown id="difsDropdown" *ngIf="size!==undefined" class = "difs" (change) = "changeDif($event.target.value)">
+   <option *ngFor="let dif of difs" value={{dif}}>{{dif}}</option>
+</select>
+
+<button (click) = "showRankings('score')">Show rankings</button>
+<button *ngIf="puzzleName!==undefined" (click) = "goToPuzzle()">Go to puzzle</button>
+<div class="table-responsive">
+
+<table #overall class="table">
+  <tr>
+    <th>#</th>
+    <th (click) = "sortBy('name')">Name</th>
+    <th (click) = "sortBy('numsolved')">Num solved</th>
+    <th (click) = "sortBy('score')">Score</th>
+    <th (click) = "sortBy('avgm')">Average medal</th>
+    <th (click) = "sortBy('numbest')">Num records</th>
+    <th [class.noshow] = "dif === undefined" (click) = "sortBy('best')">Best time</th>
+    <th [class.noshow] = "dif === undefined" (click) = "sortBy('q50.t')">Average time</th>
+  </tr>
+  <tr *ngFor="let row of list" class = "userrow">
+    <td>{{row.index}}</td>
+    <td>{{row.name}}</td>
+    <td>{{row.numsolved}}</td>
+    <td>{{row.score}}</td>
+    <td>{{row.avgMedal}}</td>
+    <td>{{row.numbest}}</td>
+    <td [class.noshow] = "dif === undefined">{{row.best}}</td>
+    <td [class.noshow] = "dif === undefined">{{row.q50.t}}</td>
+  </tr>
+</table>
+</div>
+
+<!-- <div *ngFor="let puzzletype of puzzletypes" class = "puzzles">
+  <fieldset class="puzzle" routerLink="/rankings/{{puzzletype}}">
+  <img class = "puzzlelink" src = "../../assets/images/{{puzzletype}}.png" alt = {{puzzletype}} title = {{puzzletype}}/>
+  </fieldset>
+</div> -->
