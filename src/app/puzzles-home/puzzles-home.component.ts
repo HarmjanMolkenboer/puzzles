@@ -8,7 +8,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import * as firebase from 'firebase/app';
 import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
-import { PuzzleComponent } from '../puzzle/puzzle.component';
 @Component({
   selector: 'app-puzzle',
   templateUrl: './puzzles-home.component.html',

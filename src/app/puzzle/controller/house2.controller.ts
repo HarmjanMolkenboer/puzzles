@@ -1,5 +1,4 @@
 import {SymbolsPuzzleController} from './abstract/symbols-puzzle.controller';
-import {PuzzleComponent} from '../puzzle.component';
 import {Square} from '../model/model.square';
 import {Row} from '../model/model.row';
 import { DrawingsService } from '../drawings.service';

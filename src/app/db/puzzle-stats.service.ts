@@ -21,6 +21,7 @@ export class PuzzleStatsService {
   time: number;
   best: number;
   puzzle: Puzzle;
+  medal: string;
   medals = ['wood', 'bronze', 'silver', 'gold', 'platinum', 'diamond'];
   constructor(private db: AngularFirestore) {
     this.globalData = {best: 'loading...', q50: {t: 'loading...'}};

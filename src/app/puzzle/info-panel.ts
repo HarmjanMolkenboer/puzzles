@@ -1,16 +1,12 @@
-import { PuzzleComponent } from './puzzle.component';
 import { PuzzleStatsService } from '../db/puzzle-stats.service';
+import { PuzzleService } from '../puzzles-home/puzzle.service';
 export class InfoPanel {
-  private puzzleComponent: PuzzleComponent;
-  private puzzleStatsService: PuzzleStatsService;
   buttons;
   texts;
   times = [];
   dx = 200;
-  constructor(puzzleComponent: PuzzleComponent, puzzleStatsService: PuzzleStatsService) {
+  constructor(private puzzleService: PuzzleService, private puzzleStatsService: PuzzleStatsService) {
     // this.podium = podium;
-    this.puzzleComponent = puzzleComponent;
-    this.puzzleStatsService = puzzleStatsService;
     this.buttons = [
       {
         text: 'New puzzle',
@@ -23,7 +19,7 @@ export class InfoPanel {
         active: true
       },
       {
-        text: '' + this.puzzleComponent.getPuzzle().name + ' home',
+        text: '' + this.puzzleService.getPuzzle().name + ' home',
         width: 300,
         height: 60,
         xh: 350,

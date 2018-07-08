@@ -22,7 +22,6 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { RankingsComponent } from './rankings/rankings.component';
 import { LoginComponent } from './login/login.component';
-import { PuzzleComponent } from './puzzle/puzzle.component';
 import { PuzzlesHomeComponent } from './puzzles-home/puzzles-home.component';
 import { PageNotFoundComponent } from './pagenotfound/pagenotfound.component';
 import { PuzzletimePipe } from './puzzletime.pipe';
@@ -54,7 +53,6 @@ const appRoutes: Routes = [
     RankingsComponent,
     LoginComponent,
     PageNotFoundComponent,
-    PuzzleComponent,
     PuzzlesHomeComponent,
     PuzzletimePipe,
     DifficultyPipe,

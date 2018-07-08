@@ -1,24 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { PuzzleComponent } from '../puzzle.component';
 import { PuzzleStatsService } from '../../db/puzzle-stats.service';
-
+import { PuzzleService } from '../../puzzles-home/puzzle.service';
 @Component({
   selector: 'app-result-panel',
   templateUrl: './result-panel.component.html',
   styleUrls: ['./result-panel.component.css']
 })
 export class ResultPanelComponent implements OnInit {
-  private puzzleComponent: PuzzleComponent;
-  private puzzleStatsService: PuzzleStatsService;
   buttons;
   texts;
   times = [];
   dx = 200;
 
-  constructor(puzzleComponent: PuzzleComponent, puzzleStatsService: PuzzleStatsService) {
+  constructor(public puzzleStatsService: PuzzleStatsService, public puzzleService: PuzzleService) {
     // this.podium = podium;
-    this.puzzleComponent = puzzleComponent;
-    this.puzzleStatsService = puzzleStatsService;
   }
 
   ngOnInit() {
@@ -34,7 +29,7 @@ export class ResultPanelComponent implements OnInit {
         active: true
       },
       {
-        text: '' + this.puzzleComponent.getPuzzle().name + ' home',
+        text: '' + this.puzzleService.getPuzzle().name + ' home',
         width: 300,
         height: 60,
         xh: 350,

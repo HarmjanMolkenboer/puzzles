@@ -27,7 +27,7 @@ export class GridComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('highlightlayer') highlightLayerRef: ElementRef;
   @ViewChild('puzzlelayer') puzzleLayerRef: ElementRef;
   @ViewChild('gridlayer') gridLayerRef: ElementRef;
-  constructor(private puzzleService: PuzzleService, private drawingsService: DrawingsService) { }
+  constructor(public puzzleService: PuzzleService, private drawingsService: DrawingsService) { }
   ngOnInit() {
     this.puzzleService.squares = [];
     this.puzzleService.rows = [];

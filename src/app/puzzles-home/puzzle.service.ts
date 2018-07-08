@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { PuzzleComponent } from '../puzzle/puzzle.component';
 import { PuzzleController } from '../puzzle/controller/abstract/puzzle.controller';
 import {BattleshipController} from '../puzzle/controller/battleship.controller';
 import { PentaController } from '../puzzle/controller/penta.controller';
@@ -30,7 +29,7 @@ export class PuzzleService {
   colorlist = ['gray', 'blue', 'green', 'darkorange', 'deeppink'];
   squares: Square[];
   rows = [];
-  private controller: PuzzleController;
+  public controller: PuzzleController;
   // private fs  = require('fs');
 
 

@@ -42,6 +42,7 @@ export class ControlPanelComponent implements OnInit {
   numberButtons = [];
   numberlist = [];
   horizontal = true;
+  activated = true;
   constructor(private puzzleService: PuzzleService, private changeDetector: ChangeDetectorRef){}
   ngOnInit() {
     this.puzzleService.setControlPanel(this);

@@ -12,7 +12,7 @@
         attr.y= "{{button.y}}">
         <!-- attr.x= "{{(i % 2) * (buttonw + d)}}"
         attr.y= "{{(i - (i % 2)) / 2 * (buttonh + d)}}"> -->
-      <rect [class.click-area]="button.active" attr.fill="{{color}}"
+      <rect attr.fill="{{color}}"
         attr.opacity="{{button.text === 'undo' ? puzzleService.puzzle.moveIndex > 0 ? 1 : 0.5 :
         button.text === 'redo' ? puzzleService.puzzle.moveIndex === puzzleService.puzzle.moves.length ? 0.5 : 1 : 1}}"
         attr.width="{{buttonw}}"
@@ -48,7 +48,7 @@
     attr.x = "{{horizontal ? 0 : buttonw / 3}}"
     attr.y= "{{horizontal ? 2 * (buttonh + d) + 35 + 2 * d + 0.5 * w
                             : w - buttonh - 2}}">
-    <rect [class.click-area]="eraseButton.active" attr.fill="{{color}}"
+    <rect attr.fill="{{color}}"
       attr.opacity=1
       attr.width="{{width}}"
       attr.height="{{buttonh}}"
