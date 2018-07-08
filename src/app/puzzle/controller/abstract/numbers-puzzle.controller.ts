@@ -6,12 +6,25 @@ import { DrawingsService } from '../../drawings.service';
 import { PuzzleService } from '../../../puzzles-home/puzzle.service';
 
 export abstract class NumbersPuzzleController extends PuzzleController {
-  private minNumber: number;
-  private maxNumber: number;
+  minNumber: number;
+  maxNumber: number;
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     super(drawingsService, puzzleService);
+    this.gridType='grid';
   }
-
+  public isNumbersPuzzle() {
+    return true;
+  }
+  public getNumberList(): any[] {
+    const n = [];
+    for (let i=this.minNumber; i <= this.maxNumber; i++) {
+      n.push(i);
+    }
+    n.push('C');
+    return n;
+    // return Array.from(Array(this.maxNumber + 1 - this.minNumber),(x,i)=>i + this.minNumber).push('C');
+    // return this.getPuzzleService().getRange(this.minNumber, this.maxNumber + 1);
+  }
   // constructor(puzzleComponent: PuzzleComponent, gridType: string, height: number, width: number, numberofBorderValues: number, minNumber: number, maxNumber: number) {
   //   super(puzzleComponent, gridType, height, width, numberofBorderValues);
   //   this.minNumber = minNumber;
@@ -45,39 +58,13 @@ export abstract class NumbersPuzzleController extends PuzzleController {
     return numbers;
   }
   public numberClicked(n: number) {
-    // if(!this.getPuzzleComponent().isActivated()) return;
-    // const val: number = (1 << n);
-    // const sq = this.getSelectedSquare();
-    // if (sq !== undefined) {
-    //   this.getPuzzleComponent().setValue(sq, sq.getValue() ^ val, false, true, this.getPuzzleComponent().getColor());
-    //   this.getPuzzleComponent().endMove();
-    // }
-  }
-  protected setSolutionValue(sq: Square, value: number){
-    const x = sq.getX();
-    const y = sq.getY();
-    const key = this.getPuzzle().code === 'suc' ? this.getKey() / 4 : this.getKey();
-    if (value >= key / 2) {
-      this.setClue(sq, value, key);
-    } else {
-      sq.setSolutionValue(1 << (value + this.minNumber));
-      if (value > 0 && this.getNumberOfBorderValues() > 0) {
-        sq.getRows().forEach(r => r.raiseSolutionValue(value - 1));
-      }
+    if(!this.getPuzzleService().activated) return;
+    const val: number = (1 << n);
+    const sq = this.getSelectedSquare();
+    if (sq !== undefined) {
+      this.getPuzzleService().setValue(sq, sq.getValue() ^ val, false, true, this.getPuzzleService().getPuzzle().color);
+      this.getPuzzleService().endMove();
     }
-  }
-  public setClue(sq: Square, value: number, key: number) {
-    // TODO kan beter
-    value = value - Math.ceil(key / 2) + this.minNumber;
-    // value = 1 << value;
-    sq.setSolutionValue(1 << (value));
-    if (value > 0 && this.getNumberOfBorderValues() != 0) {
-      sq.getRows().forEach(r => r.raiseSolutionValue(value - 1));
-    }
-    this.getPuzzleService().setValue(sq, 1 << (value), false, false, 'black');
-  }
-  public drawClue(sq: Square) {
-
   }
   public keyPressed(event: KeyboardEvent): void {
     if (this.getSelectedSquare() === undefined) {
@@ -121,7 +108,7 @@ export abstract class NumbersPuzzleController extends PuzzleController {
     if (sq.getColor() === undefined) {
       return true;
     }
-    if (this.getNumbers(sq.getValue()).length <= 1) {
+    if (sq.getNumbers().length <= 1) {
       return false;
     }
     if (sq.getOverridenColor() === undefined) {

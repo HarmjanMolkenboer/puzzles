@@ -24,6 +24,10 @@ export class HouseController extends SymbolsPuzzleController {
     //   }
     // }
   }
+  public hasLinks(): boolean {
+    return true;
+  }
+
   public getMaxValue(): number {
     return 5;
   }

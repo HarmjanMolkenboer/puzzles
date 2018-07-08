@@ -1,79 +1,16 @@
 <svg #puzzle class="puzzle"
   attr.viewBox="0,0,{{puzzleService.controller.totWidth}},{{puzzleService.controller.totHeight}}">
-  <g #gridlayer class="grid-layer"
-    attr.transform="translate({{puzzleService.controller.getOffsetX()}},{{puzzleService.controller.getOffsetY()}})">
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SELECTED and ERROR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <g *ngFor="let sq of puzzleService.controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
-      <rect class="selected" [class.noshow]="!sq.selected" width=100 height=100></rect>
-      <rect class="error" [class.noshow]="!sq.hasError" width=100 height=100></rect>
-    </g>
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GRID~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <g attr.transform="translate({{puzzleService.controller.getOffsetX()}},{{puzzleService.controller.getOffsetY()}})">
+    <g #errorlayer></g>
     <g *ngIf="puzzleService.controller.gridType === 'grid'">
-      <path class="grid" *ngFor="let x of getRange(1,puzzleService.controller.width)"
+      <path class="grid" *ngFor="let x of puzzleService.getRange(1,puzzleService.controller.width)"
         attr.d="M{{100*x}} 0 {{100*x}} {{100*puzzleService.controller.height}}"></path>
-      <path class="grid" *ngFor="let y of getRange(1,puzzleService.controller.height)"
+      <path class="grid" *ngFor="let y of puzzleService.getRange(1,puzzleService.controller.height)"
         attr.d="M0 {{100*y}} {{puzzleService.controller.width*100}} {{100*y}}"></path>
     </g>
     <rect #boundary class="boundary" attr.width={{100*puzzleService.controller.getWidth()}} attr.height={{100*puzzleService.controller.getHeight()}}></rect>
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WALLS and LINKS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <g *ngFor="let sq of puzzleService.controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
-      <path class="boundary" [class.noshow]="!sq.hasRightWall()" d="M100 0 L100 100"></path>
-      <path class="boundary" [class.noshow]="!sq.hasDownWall()" d="M0 100 L100 100"></path>
-      <path class="link2" [class.noshow]="!sq.hasRightLink()" attr.stroke="{{sq.rightLinkColor}}" d="M60 50 L140 50"></path>
-      <path class="link2" [class.noshow]="!sq.hasDownLink()" attr.stroke="{{sq.downLinkColor}}" d="M50 60 L50 140"></path>
-    </g>
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HIGHLIGHT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <g #normal *ngFor="let sq of puzzleService.controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
-      <rect *ngIf="sq.otherSquare === undefined; else magnetsHighlight"
-        class="highlighted" [class.noshow]="!sq.highlighted" width=94 height=94 x=3 y=3></rect>
-      <ng-template #magnetsHighlight>
-        <rect *ngIf="sq.otherSquare.x === sq.x + 1" class="highlighted"
-          [class.noshow]="!sq.highlighted && !sq.otherSquare.highlighted"
-          width=194 height=94 x=3 y=3></rect>
-        <rect *ngIf="sq.otherSquare.y === sq.y + 1" class="highlighted"
-          [class.noshow]="!sq.highlighted && !sq.otherSquare.highlighted"
-          width=94 height=194 x=3 y=3></rect>
-      </ng-template>
-    </g>
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SQUAREDRAWINGS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!-- <svg *ngFor="let square of puzzleService.controller.getSquares()" attr.transform="translate({{100*square.x}}, {{100*square.y}})">
-      <path attr.stroke-width = "{{square.getStrokeWidth()}}"
-        attr.fill="{{square.color}}" attr.stroke="{{square.color}}" attr.opacity="{{square.opacity}}"
-        attr.d="{{square.path}}"></path>
-    </svg> -->
-    <!-- <svg class="square-container" > -->
-    <!-- <svg app-square *ngFor="let square of puzzleService.controller.getSquares()"
-    attr.x="{{100*square.x}}" attr.y="{{100*square.y}}" width="100" height="100" [square]="square"/> -->
-    <!-- <path attr.stroke-width = "{{square.getStrokeWidth()}}"
-      attr.fill="{{square.color}}" attr.stroke="{{square.color}}" attr.opacity="{{square.opacity}}"
-      attr.d="{{square.path}}"></path> -->
-    <!-- </svg> -->
-    <g *ngFor="let sq of puzzleService.controller.getSquares()" attr.transform="translate({{100*sq.x}}, {{100*sq.y}})">
-      <g *ngIf="isNumbersPuzzle(); else symbols">
-        <text class="number" *ngIf="sq.getNumber()!==-1; else smallNumbers" attr.fill={{sq.color}} x=50 y=50>{{sq.getNumber()}}</text>
-        <ng-template #smallNumbers>
-          <text class="small-number"
-            *ngFor="let number of sq.getNumbers()"
-            attr.fill={{sq.color}}
-            attr.x="{{puzzleService.controller.getCoordX(number)}}"
-            attr.y="{{puzzleService.controller.getCoordY(number)}}">{{number === 0 ? 'X' : number}}</text>
-        </ng-template>
-      </g>
-      <ng-template #symbols>
-        <path attr.stroke-width = "{{sq.getStrokeWidth()}}"
-          attr.fill="{{sq.color}}" attr.stroke="{{sq.color}}" attr.opacity="{{sq.opacity}}"
-          attr.d="{{sq.path}}"></path>
-      </ng-template>
-    </g>
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~BORDERVALUES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <g *ngIf="puzzleService.controller.getNumberOfBorderValues() !== 0">
-      <g *ngFor="let row of puzzleService.controller.getAllRows()">
-        <text class="bordervalue"
-          *ngFor="let bv of row.getBorderValues()"
-          attr.fill="{{bv.color}}"
-          attr.x="{{bv.x}}"
-          attr.y="{{bv.y}}">{{bv.solutionValue}}</text>
-      </g>
-    </g>
+    <g #gridlayer></g>
+    <g #highlightlayer></g>
+    <g #puzzlelayer></g>
   </g>
 </svg>

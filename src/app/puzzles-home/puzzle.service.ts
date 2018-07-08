@@ -15,17 +15,21 @@ import * as firebase from 'firebase/app';
 import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
 import {Move} from '../puzzle/model/model.move';
 import {Action} from '../puzzle/model/model.action';
-import {Square} from '../puzzle/model/model.square';
+import { Square } from '../puzzle/model/model.square';
 import { Router } from '@angular/router';
-
+import {Row} from '../puzzle/model/model.row';
+import { ControlPanelComponent } from '../puzzle/control-panel/control-panel.component'
 @Injectable()
 export class PuzzleService {
   private puzzle = new Puzzle();
   private move: Move;
+  private controlPanel: ControlPanelComponent;
   // private moveIndex: number;
   activated = true;
   highlightedSquare: Square;
   colorlist = ['gray', 'blue', 'green', 'darkorange', 'deeppink'];
+  squares: Square[];
+  rows = [];
   private controller: PuzzleController;
   // private fs  = require('fs');
 
@@ -43,11 +47,35 @@ export class PuzzleService {
   //       }).then(() => Promise.resolve(0));
   //   }
   // }
+  setControlPanel(controlPanel: ControlPanelComponent) {
+    this.controlPanel = controlPanel;
+  }
+  getControlPanel(): ControlPanelComponent {
+    return this.controlPanel;
+  }
+  addSquare(square: Square){
+    this.squares.push(square);
+  }
+  addRow(row: Row) {
+    this.rows.push(row);
+    if (row.x === undefined) {
+      this.getController().getSquares().filter(s=>s.getY() == row.y).forEach(s=>{
+      });
+    }
+  }
+
+  public getRange(beginIn:number, endEx: number): number[] {
+    return Array.from(Array(endEx - beginIn),(x,i)=>i + beginIn);
+  }
   public getExplination(puzzleName): string[] {
     let pzs : string[] = [];
-    const name = 'battleship_minesweeper';
-    const size = 's-12x12';
+    const name = 'sudoku';
+    const size = 's-9x9';
     const dif = 'd-10';
+    // pzs =['ᙱǭకዜ्૲נશᕤɏڨࣛࣥܶූϝࢳߪᕹ࿶յӁగཛËຽဣ'];
+    // const name = 'battleship_minesweeper';
+    // const size = 's-12x12';
+    // const dif = 'd-10';
     // pzs = ['Ǳᚊᶕऍ㰱ु½Πᨅ⃭㇀mdǑ⣿d'];
     // pzs = ['¾ëᴵ᪏᪪ĤȚd䅅'];
     // pzs = ['hᯫૹ૟wd'];
@@ -166,8 +194,8 @@ export class PuzzleService {
         puzzle.numberOfBorderValues = 3;
         this.controller = new HouseController(this.drawingsService, this);
         break;
-        case 'sur':
-        case 'suc':
+        case 'sudoku':
+        case 'sudoku_chaos':
           // this.repr = 'hallotest';
           puzzle.key = puzzle.width * 2;
           puzzle.numberOfBorderValues = 0;
@@ -247,6 +275,7 @@ export class PuzzleService {
     // return this.puzzleStatsService.submitTime(user.uid, docId, puzzle.id, newTimeInSeconds);
   }
   public puzzleSolved(): void {
+    alert('puzzleService.puzzleSolved()')
     // this.puzzleComponent.setAllActive(false);
     // // this.getPuzzleComponent().storeCurrentPlayField();
     // if (this.showResults) {
@@ -280,6 +309,7 @@ export class PuzzleService {
     if (this.move === undefined) {
       this.move = new Move();
     }
+    // console.log(newValue+ ' : '+(sq.getValue() === newValue) + ' | '+ (sq.getColor() !== newColor && !this.controller.canBeOverridden(sq, newValue)) + ' | '+(isDrag && !this.getController().canBeOverridden(sq, newValue) && newValue !== 0))
     if (sq.getValue() === newValue || (sq.getColor() !== newColor && !this.controller.canBeOverridden(sq, newValue))
       || (isDrag && !this.getController().canBeOverridden(sq, newValue) && newValue !== 0)) {
       return;
@@ -357,7 +387,7 @@ export class PuzzleService {
   }
 
   public endMove(): void {
-    if (this.move.actions.length === 0) {
+    if (this.move === undefined || this.move.actions.length === 0) {
       return;
     }
     // maak redo onmogelijk:
@@ -367,6 +397,7 @@ export class PuzzleService {
     this.move = new Move();
     this.getPuzzle().moveIndex++;
     window.localStorage.setItem(this.getPuzzle().puzzleRef, JSON.stringify(this.getPuzzle()));
+    this.getControlPanel().detectChanges();
   }
 
   public getColorList() {

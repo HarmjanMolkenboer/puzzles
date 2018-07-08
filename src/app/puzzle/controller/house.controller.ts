@@ -14,6 +14,9 @@ export class HouseController extends NumbersPuzzleController {
   public getMaxValue(): number {
     return 4;
   }
+  public hasLinks(): boolean {
+    return true;
+  }
   public addButtons(): void {
     this.numberButtons = [1,2,3,'X','C'];
     // for (let t = 1; t <= 3; t++) {

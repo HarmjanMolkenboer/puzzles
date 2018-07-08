@@ -1,5 +1,5 @@
 import { SymbolsPuzzleController } from './abstract/symbols-puzzle.controller';
-import { Square } from '../model/model.square';
+import {Square} from '../model/model.square';
 import {PuzzleComponent} from '../puzzle.component';
 import {Row} from '../model/model.row';
 import {PuzzleService} from '../../puzzles-home/puzzle.service';
@@ -9,58 +9,116 @@ export class MagnetsController extends SymbolsPuzzleController {
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     super(drawingsService, puzzleService);
   }
-  public initSquaresAndRows(): void {
-    const drawingService = this.getDrawingsService();
-    for (let y = 0; y < this.getHeight(); y++) {
-      for (let x = 0; x < this.getWidth(); x++) {
-        this.getSquares().push(this.newSquare(x, y));
-      }
-    }
-    // const plus = drawingService.getEmptyPath();
-    // drawingService.drawPlus(plus);
-    // plus.setAttribute('fill', 'black');
-    // drawingService.translateToSquare(plus, this.getHeight(), this.getWidth(), 0, 0);
-    // const minus = drawingService.getEmptyPath();
-    // drawingService.drawMinus(minus);
-    // minus.setAttribute('fill', 'black');
-    // drawingService.translateToSquare(minus, this.getHeight() + 1, this.getWidth() + 1, 0, 0);
-    // this.getPuzzleComponent().getGridLayer().appendChild(plus);
-    // this.getPuzzleComponent().getGridLayer().appendChild(minus);
-    const decripted = this.decript(this.getPuzzle().repr);
-    // alert(decripted);
-    this.initRows(decripted);
-    let index = 0;
-    for (const sq of this.getSquares()) {
-      if(sq.getSolutionValue() !== -1) {
-        continue;
-      }
-      const v = decripted[index++];
-      const clue = Math.floor(v / 6);
-      const dir = Math.floor((v - 6 * clue) / 3);
-      const value = v - 6 * clue - 3 * dir;
-      // console.log(sq.getX()+','+sq.getY() + ' dir: '+dir + ' value = '+value);
-      const neigh = this.getNeighbor(sq, dir, 1);
-      // if (neigh === undefined) {
-      // alert(v + "sq: "+sq.getX() + ", "+sq.getY() + " dir "+dir + " v: "+value);
-      // }
-      sq.setOtherSquare(neigh);
-      neigh.setOtherSquare(sq);
-      if (dir === 0) {
-        sq.setDownWall(true);
-        neigh.setDownWall(true);
-        neigh.setRightWall(true);
-      } else {
-        sq.setRightWall(true);
-        neigh.setRightWall(true);
-        neigh.setDownWall(true);
-      }
-      this.setSolutionValue(sq, value);
-      this.setSolutionValue(neigh, value === 0 ? 0 : 3 - value);
-    }
-    for (const row of this.getAllRows()) {
-      row.setText();
-    }
+  public hasOtherSquare(): boolean {
+    return true;
   }
+  public decript(repr: string) {
+    const key = this.getKey();
+    const squaresPerChar = this.getSquaresPerChar();
+    const array = [];
+    let charIndex = 0;
+    let ch: string;
+    // const squaresPerChar = Math.floor(32 / key);
+    let charCode: number;
+    let counter = 0;
+    do {
+      charCode = repr.charCodeAt(charIndex++);
+      charCode -= 100;
+      for (let i = squaresPerChar - 1; i >=0; i--) {
+        const n = Math.floor(charCode / Math.pow(key, i));
+        while (array[counter] !== undefined) {
+          counter++;
+        }
+        array[counter++] = n;
+        counter++;
+        const clue = Math.floor(n / 6);
+        const dir = Math.floor((n - 6 * clue) / 3);
+        if (dir === 0) {
+          array[counter++] = 12 + n;
+        } else {
+          array[counter + this.getWidth()] = 12 + n;
+        }
+        charCode -= n * Math.pow(key, i);
+      }
+    } while (charIndex < repr.length);
+    this.decripted = array;
+  }
+  public isClue(value: number): boolean {
+    return value % 12 >= 6;
+  }
+  public hasRightWall(value: number, index: number) {
+    if (value >= 12) {
+      return true;
+    }
+    const clue = Math.floor(value / 6);
+    return (Math.floor((value - 6 * clue) / 3) !== 0);
+  }
+  public hasDownWall(value: number, index: number) {
+    if (value >= 12) {
+      return true;
+    }
+    const clue = Math.floor(value / 6);
+    return (Math.floor((value - 6 * clue) / 3) === 0);
+  }
+  public getSolutionValue(value: number): number {
+    const sol = value % 3;
+    return sol === 0 ? 0 : value >= 12 ? 3 - sol : sol;
+  }
+  public getOtherLeft(value: number): boolean {
+    return value < 12 ? false : ((value - value % 3) % 6 === 0)
+  }
+  // public initSquaresAndRows(): void {
+  //   const drawingService = this.getDrawingsService();
+  //   // for (let y = 0; y < this.getHeight(); y++) {
+  //   //   for (let x = 0; x < this.getWidth(); x++) {
+  //   //     this.getSquares().push(this.newSquare(x, y));
+  //   //   }
+  //   // }
+  //   // const plus = drawingService.getEmptyPath();
+  //   // drawingService.drawPlus(plus);
+  //   // plus.setAttribute('fill', 'black');
+  //   // drawingService.translateToSquare(plus, this.getHeight(), this.getWidth(), 0, 0);
+  //   // const minus = drawingService.getEmptyPath();
+  //   // drawingService.drawMinus(minus);
+  //   // minus.setAttribute('fill', 'black');
+  //   // drawingService.translateToSquare(minus, this.getHeight() + 1, this.getWidth() + 1, 0, 0);
+  //   // this.getPuzzleComponent().getGridLayer().appendChild(plus);
+  //   // this.getPuzzleComponent().getGridLayer().appendChild(minus);
+  //   const decripted = this.decripted;
+  //   // alert(decripted);
+  //   this.initRows(decripted);
+  //   let index = 0;
+  //   for (const sq of this.getSquares()) {
+  //     if(sq.getSolutionValue() !== -1) {
+  //       continue;
+  //     }
+  //     const v = decripted[index++];
+  //     const clue = Math.floor(v / 6);
+  //     const dir = Math.floor((v - 6 * clue) / 3);
+  //     const value = v - 6 * clue - 3 * dir;
+  //     // console.log(sq.getX()+','+sq.getY() + ' dir: '+dir + ' value = '+value);
+  //     const neigh = this.getNeighbor(sq, dir, 1);
+  //     // if (neigh === undefined) {
+  //     // alert(v + "sq: "+sq.getX() + ", "+sq.getY() + " dir "+dir + " v: "+value);
+  //     // }
+  //     // sq.setOtherSquare(neigh);
+  //     // neigh.setOtherSquare(sq);
+  //     // if (dir === 0) {
+  //     //   sq.setDownWall(true);
+  //     //   neigh.setDownWall(true);
+  //     //   neigh.setRightWall(true);
+  //     // } else {
+  //     //   sq.setRightWall(true);
+  //     //   neigh.setRightWall(true);
+  //     //   neigh.setDownWall(true);
+  //     // }
+  //     // this.setSolutionValue(sq, value);
+  //     // this.setSolutionValue(neigh, value === 0 ? 0 : 3 - value);
+  //   }
+  //   for (const row of this.getAllRows()) {
+  //     row.setText();
+  //   }
+  // }
   public getOverridenValue(sq: Square, newValue: number, newColor: string, recalculate: boolean): any {
     if (newColor !== sq.getOverridenColor().color) {
       if (newValue === 1) {

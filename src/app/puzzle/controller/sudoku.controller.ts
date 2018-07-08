@@ -8,6 +8,8 @@ export class SudokuController extends NumbersPuzzleController {
   // TODO undo en kleuren werkt nog niet goed...
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     super(drawingsService, puzzleService);
+    this.minNumber = 1;
+    this.maxNumber = this.getWidth();
   }
   public addButtons(): void {
     // for (let i = 0; i < this.getWidth(); i++) {
@@ -18,10 +20,10 @@ export class SudokuController extends NumbersPuzzleController {
   public initSquaresAndRows(): void {
     super.initSquaresAndRows();
     // this.drawElements();
-    if (this.getPuzzle().code === 'sur') {
+    if (this.getPuzzle().code === 'sudoku') {
       for(let y = 0; y < 3; y++) {
 				for(let x = 0; x < this.getWidth() / 3; x++) {
-					const row:Row = new Row(0, true, 0, 0);
+					const row:Row = new Row(0, undefined, undefined, true);
           this.getAllRows().push(row);
 					for (let y1 = y * this.getWidth() / 3; y1 < (y + 1) * this.getWidth() / 3; y1++){
 						for (let x1 = 3 * x; x1 < 3 * x + 3; x1++){
@@ -30,25 +32,42 @@ export class SudokuController extends NumbersPuzzleController {
 					}
 				}
 			}
-      this.getSquares().filter(sq=>sq.getX() % 3 === 2).forEach(s => s.setRightWall(true));
-      this.getSquares().filter(sq=>sq.getY() % (this.getWidth() / 3) === this.getWidth() / 3 - 1).forEach(s=>s.setDownWall(true));
-    } else if (this.getPuzzle().code === 'suc') {
+      // this.getSquares().filter(sq=>sq.getX() % 3 === 2).forEach(s => s.setRightWall(true));
+      // this.getSquares().filter(sq=>sq.getY() % (this.getWidth() / 3) === this.getWidth() / 3 - 1).forEach(s=>s.setDownWall(true));
+    } else if (this.getPuzzle().code === 'sudoku_chaos') {
       do {
         const square = this.getSquares().find(sq => sq.getRows().length === 2);
         if (square === undefined) {
           break;
         }
-        const row:Row = new Row(0, true, 0, 0);
+        const row:Row = new Row(0, undefined, undefined, true);
         this.getAllRows().push(row);
         this.getChaosRow(square).forEach(s=>s.addRow(row));
       } while(true);
     }
   }
+  public hasRightWall(value: number, index: number): boolean {
+    switch(this.getPuzzleService().getPuzzle().code) {
+    case 'sudoku':
+      return index % 3 === 2;
+    case 'sudoku_chaos':
+      return ((value & 2) === 2);
+    }
+    return false;
+  }
+  public hasDownWall(value: number, index: number): boolean {
+    switch(this.getPuzzleService().getPuzzle().code) {
+    case 'sudoku':
+      return (this.getY(index) + 1) % (this.getWidth() / 3) === 0;
+    case 'sudoku_chaos':
+      return ((value & 1) === 1);
+    }
+    return false;
+  }
   public getKey() {
-    if (this.getPuzzle().code === 'sur') {
+    if (this.getPuzzle().code === 'sudoku') {
       return super.getKey();
     }
-    // alert(super.getKey() * 4)
     return super.getKey() * 4;
   }
   public getChaosRow(sq: Square): Square[] {
@@ -74,20 +93,12 @@ export class SudokuController extends NumbersPuzzleController {
     }
     return squares;
   }
-
-  public setSolutionValue(sq: Square, decripted: number): void {
+  public getSolutionValue(value: number) {
     switch (this.getPuzzle().code) {
-      case 'suc':
-        const ex = Math.floor(decripted / 18);
-        if ((ex & 1) === 1) {
-          sq.setDownWall(true);
-        }
-        if ((ex & 2) === 2) {
-          sq.setRightWall(true);
-        }
-        super.setSolutionValue(sq, decripted % 18);
-        break;
-      default: super.setSolutionValue(sq, decripted);
+      case 'sudoku_chaos':
+        return value % 18;
+      default:
+        return 1 << (value % this.getWidth()) + 1;
     }
   }
   isError(sq: Square): boolean {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { PuzzleService } from '../../puzzles-home/puzzle.service';
 @Component({
   selector: 'app-control-panel',
@@ -8,6 +8,7 @@ import { PuzzleService } from '../../puzzles-home/puzzle.service';
 
 })
 export class ControlPanelComponent implements OnInit {
+  @ViewChild('elementsPanel') elementsRef: ElementRef;
   h = 720;
   w = 340;
   d = 15;
@@ -41,15 +42,19 @@ export class ControlPanelComponent implements OnInit {
   numberButtons = [];
   numberlist = [];
   horizontal = true;
-  constructor(private puzzleService: PuzzleService){}
+  constructor(private puzzleService: PuzzleService, private changeDetector: ChangeDetectorRef){}
   ngOnInit() {
+    this.puzzleService.setControlPanel(this);
     const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-    this.horizontal = w >= h;
+    this.horizontal = w > h;
     window.onresize = (event => {
       const w = document.documentElement.clientWidth;
       const h = document.documentElement.clientHeight;
-      this.horizontal = (w >= h);
+      if (this.horizontal !== w > h) {
+        this.horizontal = (w > h);
+        this.detectChanges();
+      }
     });
     // alert(window.orientation)
     this.buttonw = (this.w - this.d) / 2;
@@ -69,7 +74,7 @@ export class ControlPanelComponent implements OnInit {
         cyv: (this.w - this.d) / 8,
       });
     });
-    this.numberlist.forEach((num, i) => {
+    this.puzzleService.getController().getNumberList().forEach((num, i) => {
       this.numberButtons.push({
         number: num,
         xh: (i % 3) * (this.w + this.d) / 3,
@@ -79,6 +84,7 @@ export class ControlPanelComponent implements OnInit {
         yv: (i - (i % 2)) / 2 * (this.buttonh + this.d),
       });
     });
+    this.puzzleService.getController().drawElements();
   }
   colorButtonClicked(color: string){
     this.puzzleService.getPuzzle().color = color;
@@ -86,9 +92,16 @@ export class ControlPanelComponent implements OnInit {
   }
   public buttonClicked(text: string) {
     this.puzzleService.buttonClicked(text);
+    this.detectChanges();
   }
   public get width() {
     // alert('getW')
     return this.w;
+  }
+  public getElementsSVG(): SVGElement {
+    return this.elementsRef.nativeElement;
+  }
+  public detectChanges(): void {
+    this.changeDetector.detectChanges();
   }
 }

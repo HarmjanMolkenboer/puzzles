@@ -9,19 +9,8 @@ export abstract class SymbolsPuzzleController extends PuzzleController {
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     super(drawingsService, puzzleService);
   }
-
-  protected setSolutionValue(sq: Square, value: number){
-    const x = sq.getX();
-    const y = sq.getY();
-    const key = this.getKey();
-    if (value >= key / 2) {
-      this.setClue(sq, value, key);
-    } else {
-      sq.setSolutionValue(value + 1);
-      if (value > 0 && this.getNumberOfBorderValues() > 0) {
-        sq.getRows().forEach(r => r.raiseSolutionValue(value - 1));
-      }
-    }
+  public isNumbersPuzzle() {
+    return false;
   }
   public changeValueOfSquare(sq: Square, newValue: number, newColor: string) {
     if (newValue > 1) {
@@ -38,18 +27,36 @@ export abstract class SymbolsPuzzleController extends PuzzleController {
     sq.setColor(newColor);
   }
 
-  public setClue(sq: Square, value: number, key: number) {
-    // TODO kan beter
-    value = value + 1 - Math.ceil(key / 2);
-    sq.setSolutionValue(value);
-    if (value >= 2) {
-      sq.getRows().forEach(r => r.raiseSolutionValue(value - 2));
-    }
-    this.getPuzzleService().setValue(sq, value, false, false, 'black');
-  }
+  // public setClue(sq: Square, value: number, key: number) {
+  //   // TODO kan beter
+  //   value = value + 1 - Math.ceil(key / 2);
+  //   sq.setSolutionValue(value);
+  //   if (value >= 2) {
+  //     sq.getRows().forEach(r => r.raiseSolutionValue(value - 2));
+  //   }
+  //   this.getPuzzleService().setValue(sq, value, false, false, 'black');
+  // }
   public drag(sq: Square): void {
     if (this.getDragSquare() !== undefined) {
+      if (this.getPreDragSquare().getY() === sq.getY() && this.getPreDragSquare().getX() - sq.getX() > 1) {
+        for (let x = this.getDragSquare().getX() - 1; x > sq.getX(); x--) {
+          this.getPuzzleService().setValue(this.getSquare(x, sq.getY()), this.getDragSquare().getValue(), true, true, this.getPuzzle().color);
+        }
+      } else if (this.getPreDragSquare().getY() === sq.getY() && this.getPreDragSquare().getX() - sq.getX() < -1) {
+        for (let x = this.getDragSquare().getX() + 1; x < sq.getX(); x++) {
+          this.getPuzzleService().setValue(this.getSquare(x, sq.getY()), this.getDragSquare().getValue(), true, true, this.getPuzzle().color);
+        }
+      } else if (this.getPreDragSquare().getX() === sq.getX() && this.getPreDragSquare().getY() - sq.getY() < -1) {
+        for (let y = this.getDragSquare().getY() + 1; y < sq.getY(); y++) {
+          this.getPuzzleService().setValue(this.getSquare(sq.getX(), y), this.getDragSquare().getValue(), true, true, this.getPuzzle().color);
+        }
+      } else if (this.getPreDragSquare().getX() === sq.getX() && this.getPreDragSquare().getY() - sq.getY() > 1) {
+        for (let y = this.getDragSquare().getY() - 1; y > sq.getY(); y--) {
+          this.getPuzzleService().setValue(this.getSquare(sq.getX(), y), this.getDragSquare().getValue(), true, true, this.getPuzzle().color);
+        }
+      }
       this.getPuzzleService().setValue(sq, this.getDragSquare().getValue(), true, true, this.getPuzzle().color);
+      this.setPreDragSquare(sq);
     }
   }
   public leftClicked(sq: Square) {

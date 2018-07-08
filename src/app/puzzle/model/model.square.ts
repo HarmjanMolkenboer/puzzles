@@ -1,12 +1,17 @@
 import { Row } from './model.row';
-
-import { ChangeDetectorRef } from '@angular/core';
+import {PuzzleService} from '../../puzzles-home/puzzle.service';
+// import { ChangeDetectorRef } from '@angular/core';
 export class Square {
   private y: number;
   private x: number;
+  isClue: boolean;
+  private path: string;
+  private numbers: boolean;
+  private otherLeft: boolean;
   private value: number;
   private solutionValue: number;
   private color: string;
+  private opacity: number;
   private storedColor: string;
   private numberOfErrors = [0, 0, 0, 0, 0];
   private otherSquare: Square;
@@ -17,21 +22,75 @@ export class Square {
   private highlighted = false;
   private selected = false;
   private hasError = false;
-  private rightWall = false;
-  private downWall = false;
+  private rightWall: boolean;
+  private downWall: boolean;
   private rightLink = false;
   private downLink = false;
   private rightLinkColor: string;
   private downLinkColor: string;
-  private strokeWidth = 0;
-  private path = '';
-  private opacity = 1;
-  constructor(x: number, y: number) {
+  private puzzleService: PuzzleService;
+  private strokeWidth: number;
+  private hl: SVGRectElement;
+  private wr: SVGPathElement;
+  private wd: SVGPathElement;
+  private lr: SVGPathElement;
+  private ld: SVGPathElement;
+  private drawing: SVGPathElement;
+  private error: SVGRectElement;
+  private select: SVGRectElement;
+  private bigNumber: SVGTextElement;
+  private smallNumbers: SVGTextElement[];
+  constructor(x:number,
+    y:number,
+    numbers: boolean,
+    solutionValue: number,
+    isClue: boolean,
+    rightWall: boolean,
+    downWall: boolean,
+    otherLeft: boolean,
+    puzzleService: PuzzleService) {
     this.x = x;
     this.y = y;
+    this.numbers = numbers;
+    this.isClue = isClue;
+    this.rightWall = rightWall;
+    this.downWall = downWall;
+    this.otherLeft = otherLeft;
     this.value = 0;
     // this.extraValue = 0;
-    this.solutionValue = -1;
+    this.solutionValue = solutionValue;
+    this.puzzleService = puzzleService;
+    this.smallNumbers = [];
+  }
+  public setHighligth(hl: SVGRectElement) {
+    this.hl = hl;
+  }
+  public setDrawing(drawing: SVGPathElement) {
+    this.drawing = drawing;
+  }
+  public setErrorElement(error: SVGRectElement) {
+    this.error = error;
+  }
+  public setSelectElement(select: SVGRectElement) {
+    this.select = select;
+  }
+  public setRightWallElement(wr: SVGPathElement) {
+    this.wr = wr;
+  }
+  public setDownLinkElement(ld: SVGPathElement) {
+    this.ld = ld;
+  }
+  public setDownWallElement(wd: SVGPathElement) {
+    this.wd = wd;
+  }
+  public setRightLinkElement(lr: SVGPathElement) {
+    this.lr = lr;
+  }
+  public setBigNumber(n: SVGTextElement) {
+    this.bigNumber = n;
+  }
+  public addSmallNumber(n: SVGTextElement) {
+    this.smallNumbers.push(n);
   }
   public getX(): number {
     return this.x;
@@ -39,8 +98,27 @@ export class Square {
   public getY(): number {
     return this.y;
   }
+  public setOpacity(opacity: number) {
+    this.drawing.setAttribute('opacity', ''+opacity);
+    this.opacity = opacity;
+  }
   public getValue(): number {
     return this.value;
+  }
+  public setPath(path: string) {
+    if(this.path === path) {
+      return;
+    }
+    this.path = path;
+    if (path===''){
+      this.drawing.setAttribute('display', 'none');
+    } else {
+      this.drawing.removeAttribute('display');
+      this.drawing.setAttribute('d', path);
+    }
+  }
+  public getPath() {
+    return this.path;
   }
   public getNumber(): number {
     let found=false;
@@ -65,32 +143,38 @@ export class Square {
     }
     return numbers;
   }
-  public getStrokeWidth() {
-    return this.strokeWidth;
-  }
-  public setStrokeWidth(n: number) {
-    this.strokeWidth = n;
-  }
-  public getPath(): string {
-    console.log('getpath')
-    return this.path;
-  }
-  public setPath(d: string) {
-    // alert(this.numberOfErrors)
-    // alert('change '+d)
-    // ChangeDetectorRef.markForCheck();
-    this.path = d;
-  }
-  public getOpacity() {
-    return this.opacity;
-  }
-  public setOpacity(n: number) {
-    this.opacity = n;
-  }
   public setValue(newValue: number) {
-    return this.value = newValue;
+    this.value = newValue;
+    if (this.drawing === undefined) {
+      this.showNumbers();
+    }
+  }
+  public showNumbers(): void {
+    if (this.getNumber() !== -1) {
+      for (let i = 0; i <= 9; i++) {
+        this.smallNumbers[i].setAttribute('display', 'none');
+      }
+      this.bigNumber.removeAttribute('display');
+      this.bigNumber.innerHTML=''+this.getNumber();
+    } else {
+      this.bigNumber.setAttribute('display', 'none');
+      for (let i = 0; i <= 9; i++) {
+        if ((this.value & (1 << i)) !== 0) {
+          this.smallNumbers[i].removeAttribute('display');
+        } else {
+          this.smallNumbers[i].setAttribute('display', 'none');
+        }
+      }
+    }
   }
   public setColor(color: string) {
+    if (this.drawing!==undefined) {
+      this.drawing.setAttribute('fill', color);
+      this.drawing.setAttribute('stroke', color);
+    } else {
+      this.bigNumber.setAttribute('fill', color);
+      this.smallNumbers.forEach(sn=>sn.setAttribute('fill', color));
+    }
     this.color = color;
   }
   public getColor(): string {
@@ -114,9 +198,6 @@ export class Square {
   public resetIsError(): void {
     this.numberOfErrors = [0, 0, 0, 0, 0];
   }
-  public getIsElement(): boolean {
-    return false;
-  }
   public setSolutionValue(value: number) {
     this.solutionValue = value;
   }
@@ -130,13 +211,35 @@ export class Square {
     return this.rows;
   }
   public showHighlight(show: boolean): void {
+    // this.hl.visible=show;
     this.highlighted = show;
+    if(show) {
+      // alert(this.x);
+      this.hl.removeAttribute('display');
+    } else {
+      this.hl.setAttribute('display', 'none');
+    }
   }
   public showSelectDrawing(show: boolean): void {
     this.selected = show;
+    if(show) {
+      this.select.removeAttribute('display');
+    } else {
+      this.select.setAttribute('display', 'none');
+    }
+
   }
   public showError(show: boolean): void {
     this.hasError = show;
+    if(show) {
+      this.error.removeAttribute('display');
+    } else {
+      this.error.setAttribute('display', 'none');
+    }
+  }
+  public setStrokeWidth(n: number): void {
+    this.drawing.setAttribute('stroke-width', ''+n)
+    this.strokeWidth = n;
   }
   // public addDrawing(drawing: SVGPathElement) {
   //   this.drawings.push(drawing);
@@ -157,6 +260,17 @@ export class Square {
     this.otherSquare = sq;
   }
   public getOtherSquare(): Square {
+    if (this.otherSquare === undefined) {
+      if (!this.rightWall) {
+        this.otherSquare = this.puzzleService.getController().getSquare(this.x + 1, this.y);
+      } else if (!this.downWall) {
+        this.otherSquare = this.puzzleService.getController().getSquare(this.x, this.y + 1);
+      } else if (this.otherLeft) {
+        this.otherSquare = this.puzzleService.getController().getSquare(this.x - 1, this.y);
+      } else {
+        this.otherSquare = this.puzzleService.getController().getSquare(this.x, this.y - 1);
+      }
+    }
     return this.otherSquare;
   }
   public getOverridenColor(): any {

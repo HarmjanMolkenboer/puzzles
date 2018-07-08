@@ -1,7 +1,7 @@
 import {SymbolsPuzzleController} from './abstract/symbols-puzzle.controller';
 import {PuzzleComponent} from '../puzzle.component';
 import {Square} from '../model/model.square';
-import {Row} from '../model/model.row';
+import { Row } from '../model/model.row';
 import { DrawingsService } from '../drawings.service';
 import {PuzzleService} from '../../puzzles-home/puzzle.service';
 
@@ -17,6 +17,10 @@ export class TentsController extends SymbolsPuzzleController {
       this.getPuzzleService().setValue(sq, Math.min(2, this.getDragSquare().getValue()), true, true, this.getPuzzle().color);
     }
   }
+  public hasLinks(): boolean {
+    return true;
+  }
+
   public setClue(sq: Square, value: number, key: number) {
     sq.setSolutionValue(3);
     sq.setColor('black');

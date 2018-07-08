@@ -2,7 +2,7 @@
 // niet overal gaat t goed
 
 import { SymbolsPuzzleController } from './abstract/symbols-puzzle.controller';
-import { Square } from '../model/model.square';
+import {Square} from '../model/model.square';
 // import {PuzzleComponent} from '../puzzle.component';
 import { Row } from '../model/model.row';
 import { DrawingsService } from '../drawings.service';
@@ -44,10 +44,10 @@ export class PentaController extends SymbolsPuzzleController {
   //   this.elcoords.push(this.getRotations([[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]], 1, false));
   //   // this.drawElements();
   // }
-  public initSquaresAndRows(): void {
-    super.initSquaresAndRows();
-    this.drawElements();
-  }
+  // public initSquaresAndRows(): void {
+  //   super.initSquaresAndRows();
+  //   this.drawElements();
+  // }
   private getRotations(ar: number[][], rot: number, mirror: boolean): number[][][] {
     const rotations = [ar];
     if (mirror) {
@@ -93,47 +93,47 @@ export class PentaController extends SymbolsPuzzleController {
     }
     return ar.sort((c1, c2) => 10 * c1[0] + c1[1] - 10 * c2[0] - c2[1]);
   }
-  private drawElements(): void {
-//     const elementsDrawing = this.getPuzzleComponent().getElementsSVG();
-//     const scale = 0.28;
-//     // elementsDrawing.setAttribute('transform', 'translate(' + (100 * this.getWidth() + 120) + ', 600) scale(' + scale + ')');
-//     const drawingService = this.getPuzzleComponent().getDrawingsService();
-//     let y = 0;
-//     let x = 0;
-//     y = 440 + scale * 100;
-//     const xcoords = [1.5, 8, 0, 3.5, 7, 0, 3.5, 7, 1.75, 0, 3.5, 8];
-//     const ycoords = [0, 0, 0.5, 1.5, 2.5, 3, 4, 5, 5.75, 6.5, 7.5, 6.5];
-//     const rot =     [0, 3, 3, 0, 4, 1, 4, 1, 0, 0 ,5 ,0];
-//     for (let index = 0; index < this.elements.length; index++) {
-//       // x = 550 * (index % 2) * scale;
-// //      for (let j = 0; j < this.elements[index]; j++) {
-//         const drawing: SVGPathElement = drawingService.getPenta(this.elcoords[index][rot[index]]);
-//         x = 100 * scale * xcoords[index];
-//         y = 100 * scale * ycoords[index];
-//         drawing.setAttribute('transform', 'translate(' + x + ', ' + y + ') scale(' + scale + ')');
-//         elementsDrawing.appendChild(drawing);
-// //      }
-//       // if (index % 2 === 1) {
-//       //   y = y - 350 * scale;
-//       // }
-//     }
-  }
-  public setClue(sq: Square, value: number, key: number) {
-    super.setClue(sq, value, key);
-    if (this.getKey() === 3) {
-      sq.setOpacity(0);
+  public drawElements(): void {
+    const elementsDrawing = this.getPuzzleService().getControlPanel().getElementsSVG();
+    const scale = 0.28;
+    // elementsDrawing.setAttribute('transform', 'translate(' + (100 * this.getWidth() + 120) + ', 600) scale(' + scale + ')');
+    const drawingService = this.getDrawingsService();
+    let y = 0;
+    let x = 0;
+    y = 440 + scale * 100;
+    const xcoords = [1.5, 8, 0, 3.5, 7, 0, 3.5, 7, 1.75, 0, 3.5, 8];
+    const ycoords = [0, 0, 0.5, 1.5, 2.5, 3, 4, 5, 5.75, 6.5, 7.5, 6.5];
+    const rot =     [0, 3, 3, 0, 4, 1, 4, 1, 0, 0 ,5 ,0];
+    for (let index = 0; index < this.elements.length; index++) {
+      // x = 550 * (index % 2) * scale;
+//      for (let j = 0; j < this.elements[index]; j++) {
+        const drawing: SVGPathElement = drawingService.getPenta(this.elcoords[index][rot[index]]);
+        x = 100 * scale * xcoords[index];
+        y = 100 * scale * ycoords[index];
+        drawing.setAttribute('transform', 'translate(' + x + ', ' + y + ') scale(' + scale + ')');
+        elementsDrawing.appendChild(drawing);
+//      }
+      // if (index % 2 === 1) {
+      //   y = y - 350 * scale;
+      // }
     }
   }
-  public initRows(decripted: number[]) {
-    super.initRows(decripted);
-    if (this.getKey() === 3) { // Minesweeper
-      for (let index = 0; index < decripted.length; index++) {
-        if (decripted[index] === 2) {
-          this.addMinesweeperRow(this.getSquare(index % this.getWidth(), Math.floor(index / this.getWidth())));
-        }
-      }
-    }
-  }
+  // public setClue(sq: Square, value: number, key: number) {
+  //   super.setClue(sq, value, key);
+  //   if (this.getKey() === 3) {
+  //     sq.setOpacity(0);
+  //   }
+  // }
+  // public initRows(decripted: number[]) {
+  //   super.initRows(decripted);
+  //   if (this.getKey() === 3) { // Minesweeper
+  //     for (let index = 0; index < decripted.length; index++) {
+  //       if (decripted[index] === 2) {
+  //         this.addMinesweeperRow(this.getSquare(index % this.getWidth(), Math.floor(index / this.getWidth())));
+  //       }
+  //     }
+  //   }
+  // }
   public drawSquare(sq: Square, value: number): void {
     const drawingService = this.getDrawingsService();
     if (value === 0) {

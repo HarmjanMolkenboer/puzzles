@@ -1,17 +1,19 @@
-import {Square} from '../../model/model.square';
 import {Row} from '../../model/model.row';
 import {PuzzleService} from '../../../puzzles-home/puzzle.service';
 import { DrawingsService } from '../../drawings.service';
 import { Puzzle } from '../../model/model.puzzle';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Square } from '../../model/model.square';
+import {NumbersPuzzleController} from './numbers-puzzle.controller';
 export abstract class PuzzleController {
   private height: number;
   private width: number;
   private numberOfBorderValues: number;
   gridType: string;
-  private squares: Square[];
+  // private squares: Square[];
   private rows: Row[];
   private dragSquare: Square;
+  private preDragSquare: Square;
   private selectedSquare: Square;
   private hasSeenSolution = false;
   private timePosted = false;
@@ -22,6 +24,7 @@ export abstract class PuzzleController {
   private puzzleService: PuzzleService;
   totWidth: number;
   totHeight: number;
+  decripted: number[];
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     this.drawingsService = drawingsService;
     this.puzzleService = puzzleService;
@@ -32,9 +35,10 @@ export abstract class PuzzleController {
     this.width = puzzle.width;
     this.numberOfBorderValues = puzzle.numberOfBorderValues;
     this.gridType = puzzle.gridType;
-    this.squares = [];
+    // this.squares = [];
     this.totWidth = 100 * (puzzle.width + puzzle.numberOfBorderValues) + 2 * this.getOffsetX();
     this.totHeight = 100 * (puzzle.height + puzzle.numberOfBorderValues)+ 2 * this.getOffsetY();
+    // this.decripted = this.decript(puzzle.repr);
     // alert(this.totWidth+' '+this.totHeight)
     // this.scale = 740 / Math.max(totWidth, totHeight);
   }
@@ -48,41 +52,102 @@ export abstract class PuzzleController {
   public numberClicked(n: number) {
 
   }
-  public initSquaresAndRows(): void {
-    for (let y = 0; y < this.height; y++) {
-      for (let x = 0; x < this.width; x++) {
-        this.squares.push(this.newSquare(x, y));
+  public decript(repr: string) {
+    const key = this.getKey();
+    const squaresPerChar = this.getSquaresPerChar();
+    const array = [];
+    let charIndex = 0;
+    let ch: string;
+    // const squaresPerChar = Math.floor(32 / key);
+    let charCode: number;
+    let counter = 0;
+    do {
+      charCode = repr.charCodeAt(charIndex++);
+      charCode -= 100;
+      for (let i = squaresPerChar - 1; i >=0; i--) {
+        const n = Math.floor(charCode / Math.pow(key, i));
+        array.push(n);
+        if (array.length === this.width * this.height) {
+          break;
+        }
+        charCode -= n * Math.pow(key, i);
       }
-    }
-    const decripted = this.decript(this.getPuzzle().repr);
-    this.initRows(decripted);
-    let index = 0;
-    for (const sq of this.getSquares()) {
-      this.setSolutionValue(sq, decripted[index++]);
-    }
-    if (this.numberOfBorderValues > 0) {
-      for (const row of this.rows) {
-        row.setText();
-      }
-    }
+    } while (array.length < this.width * this.height);
+    this.decripted = array;
   }
-  public initRows(decripted: number[]): void {
-    this.rows = [];
-    const drawingService = this.getDrawingsService();
-    for (let x = 0; x < this.width; x++) {
-      const row: Row = new Row(this.numberOfBorderValues, false, 100 * x + 50, 100 * this.height + 50);
-      for (let y = 0; y < this.getHeight(); y++) {
-        this.getSquare(x, y).addRow(row);
+  public getX(index: number) {
+    return index % this.getWidth();
+  }
+  public getY(index: number) {
+    return (index - (index % this.getWidth())) / this.getWidth();
+  }
+  public getSolutionValue(value: number) {
+    return value % Math.ceil(this.getKey() / 2) + 1;
+  }
+  public isClue(value: number): boolean {
+    return value >= this.getKey() / 2;
+  }
+  public hasRightWall(value: number, index: number) {
+    return false;
+  }
+  public hasDownWall(value: number, index: number) {
+    return false;
+  }
+  public getOtherLeft(value: number): boolean {
+    return undefined;
+  }
+  public hasBorderValue(value: number): boolean {
+    return false;
+  }
+  public abstract isNumbersPuzzle();
+  public drawElements(): void {
+
+  }
+  public initSquaresAndRows(): void {
+    // this.drawElements();
+    this.decripted.forEach((value, index) => {
+      this.getSquares().push(new Square(this.getX(index),
+        this.getY(index),
+        this.isNumbersPuzzle(),
+        this.getSolutionValue(value),
+        this.isClue(value),
+        this.hasRightWall(value, index),
+        this.hasDownWall(value, index),
+        this.getOtherLeft(value),
+        this.puzzleService));
+    });
+    // alert(this.getSquares().length)
+    // for (let y = 0; y < this.height; y++) {
+    //   for (let x = 0; x < this.width; x++) {
+    //     this.squares.push(this.newSquare(x, y));
+    //   }
+    // }
+    // this.decripted = this.decript(this.getPuzzle().repr);
+    // this.initRows(this.decripted);
+    // let index = 0;
+    // for (const sq of this.getSquares()) {
+    //   this.setSolutionValue(sq, this.decripted[index++]);
+    // }
+    // if (this.numberOfBorderValues > 0) {
+    //   for (const row of this.rows) {
+    //     row.setText();
+    //   }
+    // }
+    this.initRows();
+  }
+  public addRowToSquare(sq: Square, row: Row) {
+    sq.addRow(row);
+    if (sq.getSolutionValue() >= 2) {
+      row.raiseSolutionValue(sq.getSolutionValue() - 2);
+      if (sq.isClue) {
+        row.raiseValue(sq.getSolutionValue() - 2);
       }
-      this.rows.push(row);
     }
-    for (let y = 0; y < this.height; y++) {
-      const row: Row = new Row(this.numberOfBorderValues, true, 100 * this.width + 50, 100 * y + 50);
-      for (let x = 0; x < this.getWidth(); x++) {
-        this.getSquare(x, y).addRow(row);
-      }
-      this.rows.push(row);
-    }
+    // console.log(row.getSolutionValue(0))
+  }
+  public initRows(): void {
+    // for (const row of this.rows) {
+    // }
   }
   public getCoordX(n: number) {
     return 20 + 30 * ((n - 1) % 3);
@@ -90,55 +155,24 @@ export abstract class PuzzleController {
   public getCoordY(n: number) {
     return 22 + 30 * Math.floor((n - 1) / 3);
   }
-  public addMinesweeperRow(sq: Square) {
-    const row: Row = new Row(this.numberOfBorderValues, true, 100 * sq.getX() + 50, 100 * sq.getY() + 50);
-    for (const s of this.getAllNeighbors(sq)){
-      s.addRow(row);
-    }
-    this.rows.push(row);
-  }
-  newSquare(x, y): Square {
-    return new Square(x, y);
-  }
-  protected abstract setSolutionValue(sq: Square, value: number);
+  // public addMinesweeperRow(sq: Square) {
+  //   const row: Row = new Row(this.numberOfBorderValues, true, 100 * sq.getX() + 50, 100 * sq.getY() + 50);
+  //   for (const s of this.getAllNeighbors(sq)){
+  //     s.addRow(row);
+  //   }
+  //   this.rows.push(row);
+  // }
+  // newSquare(x, y): Square {
+  //   return new Square(x, y);
+  // }
+  // protected abstract setSolutionValue(sq: Square, value: number);
     // console.log(value);
-  public abstract setClue(sq: Square, value: number, key: number);
+  // public abstract setClue(sq: Square, value: number, key: number);
   public abstract keyPressed(event: KeyboardEvent): void;
   public abstract drag(sq: Square): void;
   public abstract leftClicked(sq: Square);
   public abstract rightClicked(sq: Square);
   public abstract changeValueOfSquare(sq: Square, newValue: number, newColor: string);
-  public drawGrid(): void {
-    // const scale = this.puzzle.getScale();
-    switch (this.gridType) {
-      case 'grid':
-        // const hl: SVGElement = this.puzzleComponent.getDrawingService().getEmptyPath();
-        // let d = '';
-        // for (let x = 0; x <= this.getWidth(); x++) {
-        //   d = d + ' M' + (100 * x + this.getOffsetX()) + ',' + this.getOffsetY()
-        //     + ' L' + (100 * x + this.getOffsetX()) + ',' + (100 * this.getHeight() + this.getOffsetY());
-        // }
-        // for (let y = 0; y <= this.getHeight(); y++) {
-        //   d = d + ' M' + this.getOffsetX() + ',' + (100 * y + this.getOffsetY())
-        //     + 'L' + (100 * this.getWidth() + this.getOffsetX()) + ',' + (100 * y + this.getOffsetY());
-        // }
-        // hl.setAttribute('d', d);
-        // hl.setAttribute('stroke', 'gray');
-        // hl.setAttribute('stroke-width', '4');
-        // this.getPuzzleComponent().getHighlightLayer().appendChild(hl);
-        break;
-      case 'nogrid':
-        break;
-      case 'dots':
-        for (let y = 0; y <= this.height + 1; y++) {
-          for (let x = 0; x <= this.width + 1; x++) {
-            // ctx.fillRect(40 * scale * y  * this.height / (this.height + 0.5) + 6, 40 * scale * x * this.width / (this.width + 0.5) + 6, 5, 5);
-          }
-        }
-        break;
-      default: break;
-    }
-  }
   public getAdjacentNeighbors(sq: Square): Square[] {
     const neighs = [];
     for (let i = -1; i <= 1; i += 2) {
@@ -151,8 +185,14 @@ export abstract class PuzzleController {
     }
     return neighs;
   }
+  public hasOtherSquare(): boolean {
+    return false;
+  }
   public getNeighbor(sq: Square, dir: number, next: number): Square {
     return this.getSquare(sq.getX() + (dir === 0 ? 2 * next - 1 : 0), sq.getY() + (dir === 1 ? 2 * next - 1 : 0));
+  }
+  public hasLinks(): boolean {
+    return false;
   }
   public getDiagonalNeighbors(sq: Square): Square[] {
     const neighs = [];
@@ -183,19 +223,57 @@ export abstract class PuzzleController {
   public getSquareFromMouseCoords(x: number, x2: number, y: number, y2: number): Square {
     const px = x / (x+x2);
     const py = y / (y+y2);
-    return this.getSquare(Math.floor(px * this.width), Math.floor(py * this.height));
+    const sqx = Math.floor(px * this.width);
+    const sqy = Math.floor(py * this.height);
+    if (sqy < 0 || sqy >= this.height || sqx < 0 || sqx >= this.width) {
+      this.getPuzzleService().endMove();
+    }
+    return this.getSquare(sqx, sqy);
   }
   public getSquare(x: number, y: number): Square {
     if (y < 0 || y >= this.height || x < 0 || x >= this.width) {
       return undefined;
     }
-    return this.squares[y * this.width + x];
+    return this.puzzleService.squares[y * this.height + x];
   }
   public getSquares(): Square[] {
-    return this.squares;
+    return this.getPuzzleService().squares;
   }
   public getAllRows(): Row[] {
+    // alert(this.getSquares().length)
+    if (this.rows === undefined) {
+      this.rows=[];
+      for (let y = 0; y < this.getHeight(); y++) {
+        const row = new Row(this.getNumberOfBorderValues(), this.getWidth(), y, true);
+        this.getSquares().filter(s=>s.getY() === row.y).forEach(sq => {
+          this.addRowToSquare(sq, row);
+        });
+        this.rows.push(row);
+    }
+      for (let x = 0; x < this.getWidth(); x++) {
+        const row = new Row(this.getNumberOfBorderValues(), x, this.getHeight(), false);
+        this.getSquares().filter(s=>s.getX() === row.x).forEach(sq => {
+          this.addRowToSquare(sq, row);
+        });
+        this.rows.push(row);
+      }
+      if (this.isMinesweeper()) {
+        for (let index = 0; index < this.decripted.length; index++) {
+          const num = this.decripted[index];
+          if (this.isClue(num)) {
+            const row = new Row(this.getNumberOfBorderValues(), this.getX(index), this.getY(index), true);
+            this.getSquares().filter(s => (s.getX() - row.x) * (s.getX() - row.x) + (s.getY() - row.y) * (s.getY() - row.y) <= 2).forEach(sq => {
+               this.addRowToSquare(sq, row);
+             });
+            this.rows.push(row);
+          }
+        }
+      }
+    }
     return this.rows;
+  }
+  public isMinesweeper(): boolean {
+    return this.puzzleService.getPuzzle().code.endsWith('minesweeper');
   }
   public getMaxValue(): number {
     return Math.ceil(this.getKey() / 2) + 1;
@@ -242,8 +320,14 @@ export abstract class PuzzleController {
   }
   public setDragSquare(sq: Square): void {
     this.dragSquare = sq;
+    this.preDragSquare = sq;
   }
-
+  public getPreDragSquare(): Square {
+    return this.preDragSquare;
+  }
+  public setPreDragSquare(square: Square) {
+    this.preDragSquare = square;
+  }
   public getDragSquare(): Square {
     return this.dragSquare;
   }
@@ -305,7 +389,7 @@ export abstract class PuzzleController {
           this.drawSquare(sq, sq.getSolutionValue());
         }
         sq.setColor(color);
-        await this.delay(1000 / this.squares.length);
+        await this.delay(1000 / this.getPuzzleService().squares.length);
       }
     }
   }
@@ -314,29 +398,13 @@ export abstract class PuzzleController {
   }
   public puzzleSolved() {
     this.getPuzzleService().puzzleSolved();
+
     // this.getPuzzleComponent().getRouter().navigate(['/'+this.getPuzzle().name]));
   }
-
-  public decript(repr: string): Array<number> {
-    const key = this.getKey();
-    const squaresPerChar = this.getSquaresPerChar();
-    const array = [];
-    let charIndex = 0;
-    let ch: string;
-    // const squaresPerChar = Math.floor(32 / key);
-    let charCode: number;
-    let counter = 0;
-    do {
-      charCode = repr.charCodeAt(charIndex++);
-      charCode -= 100;
-      for (let i = squaresPerChar - 1; i >=0; i--) {
-        const n = Math.floor(charCode / Math.pow(key, i));
-        array.push(n);
-        charCode -= n * Math.pow(key, i);
-      }
-    } while (charIndex < repr.length);
-    return array;
+  public getNumberList(): any[]{
+    return[];
   }
+
   public getSquaresPerChar(): number {
     let squaresPerChar = 0;
     for(;Math.pow(this.getKey(), squaresPerChar + 1) < 55196; squaresPerChar++);

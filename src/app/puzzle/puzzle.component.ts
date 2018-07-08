@@ -50,7 +50,7 @@ export class PuzzleComponent implements OnInit {
       this.puzzleService.getPuzzle().width = 7;
       this.puzzleService.getPuzzle().height = 7;
       this.controller = this.puzzleService.createController(this, 'battleship_minesweeper');
-      this.controller.drawGrid();
+      // this.controller.drawGrid();
     } else {
       this.showControlPanel = true;
       this.puzzleRef.nativeElement.oncontextmenu = e => e.preventDefault();
@@ -70,7 +70,7 @@ export class PuzzleComponent implements OnInit {
         this.puzzleService.setPuzzle(puzzle);
       }
       this.controller = this.puzzleService.createController(this, this.puzzleService.getPuzzle().code);
-      this.controller.drawGrid();
+      // this.controller.drawGrid();
       this.controlPanel = new ControlPanel();
       this.getController().addButtons();
       this.controlPanel.init();
