@@ -37,6 +37,7 @@ export class ControlPanel {
   colorButtons = [];
   numberButtons = [];
   numberlist = [];
+  hasElementsPanel = false;
 constructor() {
   }
   init() {

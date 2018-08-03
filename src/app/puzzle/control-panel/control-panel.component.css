@@ -1,27 +1,98 @@
-.click-area {
-  stroke-width: 5;
-  stroke: black;
+.ctrls {
+  font-size: 1.3vw;
 }
-.click-area:hover {
-  opacity: 0.75;
+@media (min-aspect-ratio: 20/13) {
+  .ctrls {
+    font-size: 2vh;
+  }
 }
-.button-text {
-  text-anchor: middle;
-  dominant-baseline: central;
-  fill: black;
-  pointer-events: none;
-  font: 25px sans-serif;
-  /*font: 35px;*/
+.number-button-container {
+  /*font-size: 5px;*/
+  /*display: flex;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;*/
 }
-.btn-color{
-  stroke: black;
-  stroke-width: 6;
+@media screen and (orientation:portrait) {
+
 }
-.color-text{
-  text-anchor: middle;
-  dominant-baseline: central;
-  fill: black;
-  pointer-events: none;
-  font: 32px sans-serif;
-  /*font: 35px;*/
+.knop {
+  font-size: 2rem;
+  display: inline-block;
+  width: 12rem;
+  height: 4.5rem;
+  margin: 0.4rem 0.4rem 0 0;
+  vertical-align: middle;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 0.2rrem solid #ffffff;
+  box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.33);
+  background-repeat: no-repeat;
+  background-position: center;
+  text-align: center;
+  line-height: 4.4rem;
+}
+
+/*@media screen and (orientation:landscape) {*/
+  .button-number{
+    /*display: inline-block;*/
+    font-size: 3rem;
+    width: 15rem;
+    height: 4rem;
+    border-radius: 5rem;
+    border: 0.2rem dashed limegreen;
+    background-color: purple;
+    margin: 0.4rem 0.2rem;
+    padding: 0.2rem;
+    color: yellow;
+  }
+/*}*/
+.elpanel {
+  width: 24rem;
+}
+.button-number:hover {
+  padding: 0.4rem;
+  margin: 0.2rem;
+  background-color: red;
+  box-shadow: 3px 3px 5px 6px #ccc;
+}
+.custom-radios {
+}
+.custom-radios div {
+  display: inline-block;
+  /*font-size: 200%;*/
+}
+.custom-radios input[type="radio"] {
+  display: none;
+}
+.custom-radios input[type="radio"] + label {
+  color: #333;
+  font-family: Arial, sans-serif;
+  /*font-size: 1.3vw;*/
+}
+@media (min-aspect-ratio: 20/13) {
+  .custom-radios input[type="radio"] + label {
+    /*font-size: 2vh;*/
+  }
+}
+.custom-radios input[type="radio"] + label span {
+  display: inline-block;
+  width: 4.4rem;
+  height: 4.4rem;
+  margin: 0.4rem 0.4rem 0 0;
+  vertical-align: middle;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 0.2rrem solid #ffffff;
+  box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.33);
+  background-repeat: no-repeat;
+  background-position: center;
+  text-align: center;
+  line-height: 4.4rem;
+}
+.custom-radios input[type="radio"] + label span h3 {
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.custom-radios input[type="radio"]:checked + label span h3 {
+  opacity: 1;
 }

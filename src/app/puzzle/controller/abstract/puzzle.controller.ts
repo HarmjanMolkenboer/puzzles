@@ -397,6 +397,7 @@ export abstract class PuzzleController {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   public puzzleSolved() {
+
     this.getPuzzleService().puzzleSolved();
 
     // this.getPuzzleComponent().getRouter().navigate(['/'+this.getPuzzle().name]));

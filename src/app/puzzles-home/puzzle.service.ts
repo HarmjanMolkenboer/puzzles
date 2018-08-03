@@ -274,7 +274,7 @@ export class PuzzleService {
     // return this.puzzleStatsService.submitTime(user.uid, docId, puzzle.id, newTimeInSeconds);
   }
   public puzzleSolved(): void {
-    alert('puzzleService.puzzleSolved()')
+    // alert('puzzleService.puzzleSolved()')
     // this.puzzleComponent.setAllActive(false);
     // // this.getPuzzleComponent().storeCurrentPlayField();
     // if (this.showResults) {

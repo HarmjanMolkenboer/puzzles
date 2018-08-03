@@ -17,19 +17,19 @@ export class ControlPanelComponent implements OnInit {
   buttons = [
     {
       text: 'home',
-      x: 0, y:0
+      xh: 0, yh:0, xv:0, yv:0
     },
     {
       text: 'show',
-      x: 0, y:0
+      xh: 0, yh:0, xv:0, yv:0
     },
     {
       text: 'undo',
-      x: 0, y:0
+      xh: 0, yh:0, xv:0, yv:0
     },
     {
       text: 'redo',
-      x: 0, y:0
+      xh: 0, yh:0, xv:0, yv:0
     }
   ];
   eraseButton = {
@@ -38,7 +38,7 @@ export class ControlPanelComponent implements OnInit {
   };
   colorlist = ['gray', 'blue', 'green', 'darkorange', 'deeppink'];
   colorButtons = [];
-  color = 'gray';
+  color: string;
   numberButtons = [];
   numberlist = [];
   horizontal = true;
@@ -62,8 +62,10 @@ export class ControlPanelComponent implements OnInit {
     this.buttonh = this.buttonw * 0.33;
     for(let x = 0; x < 2; x++) {
       for(let y = 0; y < 2; y++) {
-        this.buttons[x + 2 * y].x = x * (this.buttonw + this.d);
-        this.buttons[x + 2 * y].y = y * (this.buttonh + this.d);
+        this.buttons[x + 2 * y].xh = x * (this.buttonw + this.d);
+        this.buttons[x + 2 * y].yh = 4.7 * y * (this.buttonh + this.d);
+        this.buttons[x + 2 * y].xv = x * (this.buttonw + this.d);
+        this.buttons[x + 2 * y].yv = 3.5 * y * (this.buttonh + this.d);
       }
     }
     this.colorlist.forEach((clr, i) => {
@@ -86,6 +88,11 @@ export class ControlPanelComponent implements OnInit {
       });
     });
     this.puzzleService.getController().drawElements();
+    this.color = this.puzzleService.getPuzzle().color;
+    if (this.color === 'black') {
+      this.color = 'gray';
+      this.puzzleService.getPuzzle().color = 'gray';
+    }
   }
   colorButtonClicked(color: string){
     this.puzzleService.getPuzzle().color = color;

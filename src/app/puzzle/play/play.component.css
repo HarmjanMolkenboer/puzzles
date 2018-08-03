@@ -6,14 +6,12 @@
     flex-wrap: wrap;
   }
   .grid {
-    width: 100%;
-    max-width: 65vh;
-    height: 100vw;
-    max-height: 65vh;
+    width: 50rem;
+    height: 50rem;
   }
   .controls {
-    width: 100%;
-    max-width: 65vh;
+    overflow: hidden;
+    width: 50rem;
   }
 }
 @media screen and (orientation:landscape) {
@@ -21,13 +19,12 @@
     flex-wrap: nowrap;
   }
   .grid {
-    height: 100%;
-    max-height: 65vw;
-    width: 100vh;
-    max-width: 65vw;
+    width: 50rem;
+    height: 50rem;
   }
   .controls {
-    width: 33%;
-    max-width: 50vh;
+    overflow: hidden;
+    width: 35rem;
+    height: 45rem;
   }
 }
