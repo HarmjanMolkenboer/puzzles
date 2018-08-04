@@ -102,11 +102,21 @@ export class ControlPanelComponent implements OnInit {
     this.puzzleService.buttonClicked(text);
     this.detectChanges();
   }
+  public exit() {
+    alert('exit');
+  }
+  public eraseErrors() {
+    alert('erase errors');
+  }
+  public showHelp() {
+    alert('showhelp')
+  }
   public get width() {
     // alert('getW')
     return this.w;
   }
   public getElementsSVG(): SVGElement {
+    // alert('hey'+(this.elementsRef === undefined))
     return this.elementsRef.nativeElement;
   }
   public detectChanges(): void {

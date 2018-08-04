@@ -37,7 +37,7 @@ export abstract class SymbolsPuzzleController extends PuzzleController {
   // }
   public drag(sq: Square): void {
     if (this.getDragSquare() !== undefined) {
-      if (this.getPreDragSquare().getY() === sq.getY() && this.getPreDragSquare().getX() - sq.getX() > 1) {
+     if (this.getPreDragSquare().getY() === sq.getY() && this.getPreDragSquare().getX() - sq.getX() > 1) {
         for (let x = this.getDragSquare().getX() - 1; x > sq.getX(); x--) {
           this.getPuzzleService().setValue(this.getSquare(x, sq.getY()), this.getDragSquare().getValue(), true, true, this.getPuzzle().color);
         }
