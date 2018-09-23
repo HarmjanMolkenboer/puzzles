@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'medal'
 })
 export class MedalPipe implements PipeTransform {
-  medals = ['Wood', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+  medals = ['wood', 'bronze', 'silver', 'gold', 'platinum', 'diamond'];
   transform(multiplier: number): string {
     const m = Math.floor(multiplier);
     let medal = this.medals[m - 1];

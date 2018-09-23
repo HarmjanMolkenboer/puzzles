@@ -9,7 +9,6 @@ import { DrawingsService } from '../drawings.service';
 import { PuzzleService } from '../../puzzles-home/puzzle.service';
 
 export class PentaController extends SymbolsPuzzleController {
-  private elements = [];
   private elcoords = [];
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     super(drawingsService, puzzleService);
@@ -222,4 +221,5 @@ export class PentaController extends SymbolsPuzzleController {
  // private checkDiagonals(sqs: Square[]): boolean {
  //
  // }
+
 }

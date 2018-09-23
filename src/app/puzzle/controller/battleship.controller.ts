@@ -8,51 +8,45 @@ export class BattleshipController extends SymbolsPuzzleController {
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     super(drawingsService, puzzleService);
     this.gridType='grid';
+    let elTemp;
     if (this.getWidth() === 7) {
       this.elements = [3, 2, 1];
+      elTemp = [[1], [2,3]];
+      this.elementScale = 0.2;
     } else if (this.getWidth() === 9) {
       this.elements = [4, 3, 2, 1];
+      elTemp = [[1,2],[3,4]];
+      this.elementScale = 0.14;
     } else {
       this.elements = [5, 4, 3, 2, 1];
+      elTemp = [[1,2],[3],[4,5]];
+      this.elementScale = 0.11;
     }
-
+    for (const g of elTemp) {
+      this.elementDrawings.unshift([]);
+      for (const length of g) {
+        this.elementDrawings[0].unshift([]);
+      for (let j = 0; j < this.elements[length - 1]; j++) {
+        this.elementDrawings[0][0].unshift([]);
+        if (length === 1) {
+            this.elementDrawings[0][0][0].push(this.getDrawingsService().getCirclePath());
+          } else {
+            this.elementDrawings[0][0][0].push(this.getDrawingsService().getShipPartPath(0, 1));
+            for (let i = 2; i < length; i++) {
+              this.elementDrawings[0][0][0].push(this.getDrawingsService().getSquarePath());
+            }
+            this.elementDrawings[0][0][0].push(this.getDrawingsService().getShipPartPath(0, 0));
+          }
+        }
+      }
+    }
   }
-  private elements = [];
-  // public setClue(sq: Square, value: number, key: number) {
-  //   value = this.getKey() === 3 ? 1 : value - 2 + 1;
-  //   sq.setSolutionValue(value);
-  //   sq.setColor('black');
-  //   sq.setValue(value);
-  //   if (value === 2) {
-  //     sq.getRows().forEach(r => r.raiseSolutionValue(0));
-  //     sq.getRows().forEach(r => r.raiseValue(0));
-  //   }
-  //   if (this.getKey() === 3) {
-  //     sq.setOpacity(0.5);
-  //   }
-  // }
   public hasBorderValue(value: number): boolean {
     if (this.isClue(value)) {
       return this.getPuzzleService().getPuzzle().code === 'battleship_minesweeper';
     }
     return false;
   }
-  // public initSquaresAndRows(): void {
-    // super.initSquaresAndRows();
-    // this.drawElements();
-    // const drawingService = this.getDrawingsService();
-    // const clues: Square[] = [];
-    // for (const sq of this.getSquares().filter(s => s.getColor() === 'black')) {
-    //   this.getPuzzleService().setValue(sq, sq.getSolutionValue(), false, false, 'black');
-    //   if (sq.getSolutionValue() === 1) {
-    //     sq.setStrokeWidth(6);
-    //     sq.setPath(drawingService.getWaterPath());
-    //     // drawingService.drawWater(sq.getDrawing(0));
-    //   } else {
-    //     this.drawBoatClue(sq, true);
-    //   }
-    // }
-  // }
   private drawBoatClue(sq: Square, errors:boolean) {
     const drawingService = this.getDrawingsService();
     const neighs = this.getAdjacentNeighbors(sq);
@@ -88,6 +82,7 @@ export class BattleshipController extends SymbolsPuzzleController {
     }
   }
   public drawElements(): void {
+
     // alert('jo')
     const elementsDrawing = this.getPuzzleService().getControlPanel().getElementsSVG();
 
@@ -178,20 +173,7 @@ export class BattleshipController extends SymbolsPuzzleController {
     return false;
   }
   public drawSquare(sq: Square, value: number): void {
-    // if (sq.getColor() === 'black') {
-    //   return;
-    // }
-    // alert('value = '+sq.getValue())
     const drawingService = this.getDrawingsService();
-    // if (sq.getValue() !== value) {
-    //   if (sq.getSolutionValue() === 1) {
-    //     sq.setStrokeWidth(6);
-    //     sq.setPath(drawingService.getWaterPath());
-    //   } else {
-    //     this.drawBoatClue(sq, false);
-    //   }
-    //   return;
-    // }
     if (value === 0) {
       sq.setPath('');
       sq.showError(false);
@@ -304,24 +286,28 @@ export class BattleshipController extends SymbolsPuzzleController {
         }
       }
     }
-
+    // test
     // draw Elements
-    const elementsDrawing = this.getPuzzleService().getControlPanel().getElementsSVG();
+    // const elementsDrawing = this.getPuzzleService().getControlPanel().getElementsSVG();
+    const elementsDrawing = document.getElementsByClassName('bootdeel');
+    
     let counter = 0;
-    for (let index = 0; index < this.elements.length; index++) {
+    for (let index = this.elements.length - 1; index >= 0; index--) {
       for (let i = 0; i < this.elements[index]; i++) {
-        if (placed[index] > this.elements[index]) {
-          elementsDrawing.children[counter].setAttribute('fill', 'red');
-          solved = false;
-        } else {
-          if (placed[index] > i) {
-            elementsDrawing.children[counter].setAttribute('fill', 'gray');
-          } else {
-            elementsDrawing.children[counter].setAttribute('fill', 'black');
+        for (let j = 0; j <= index; j++) {
+          if (placed[index] > this.elements[index]) {
+            elementsDrawing[counter].setAttribute('fill', 'red');
             solved = false;
+          } else {
+            if (placed[index] > i) {
+              elementsDrawing[counter].setAttribute('fill', 'gray');
+            } else {
+              elementsDrawing[counter].setAttribute('fill', 'black');
+              solved = false;
+            }
           }
+          counter++;
         }
-        counter++;
       }
     }
     if (solved && this.areAllRowsCorrect()){
@@ -329,8 +315,4 @@ export class BattleshipController extends SymbolsPuzzleController {
       this.puzzleSolved();
     }
   }
-  // public getSolutionValue(value: number) {
-  //   return value % (this.getKey() / 2);
-  // }
-
 }

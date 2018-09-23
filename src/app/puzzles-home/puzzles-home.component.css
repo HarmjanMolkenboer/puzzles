@@ -122,3 +122,21 @@ tr:nth-child(even) {
       padding: 1vw;
   }
 }
+.stickfigure {
+  fill: transparent;
+  stroke: black;
+  stroke-width: 4;
+}
+.stage {
+  fill: transparent;
+  stroke: black;
+  stroke-width: 4;
+}
+.medal-text {
+  font-size: 20;
+  text-anchor: middle;
+}
+.time-text {
+  font-size: 14;
+  text-anchor: middle;
+}

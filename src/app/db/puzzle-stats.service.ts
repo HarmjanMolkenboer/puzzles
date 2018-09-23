@@ -21,8 +21,9 @@ export class PuzzleStatsService {
   time: number;
   best: number;
   puzzle: Puzzle;
-  medal: string;
   medals = ['wood', 'bronze', 'silver', 'gold', 'platinum', 'diamond'];
+  times = [];
+
   constructor(private db: AngularFirestore) {
     this.globalData = {best: 'loading...', q50: {t: 'loading...'}};
     this.userData = {best: 'loading...', q50: {t: 'loading...'}};
@@ -84,18 +85,76 @@ export class PuzzleStatsService {
         puzzle.nextRepr = doc.data().repr;
         console.log('next: '+puzzle.nextRepr);
       }).catch(e=>console.log('next puzzle is undefined')),
-      this.updatePuzzle(puzzleDocRef, difDocRef.collection('times').where('puzzleid', '==', puzzle.id)).catch(e=>console.log('oops'+e.message)),
-      timesDoc.set({userid: user.uid, puzzleid: puzzle.id, time: time, timestamp: firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.log('oops2'+e.message)),
+      this.updatePuzzle(puzzleDocRef, difDocRef.collection('times').where('puzzleid', '==', puzzle.id))
+        .catch(e=>console.log('oops'+e.message)),
+      timesDoc.set({userid: user.uid, puzzleid: puzzle.id, time: time, 
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.log('oops2'+e.message)),
       this.updateGlobalStats(codeDocRef, difDocRef.collection('times')).catch(e=>console.log('oops3'+e.message))])
       .then(() => {
-        console.log('mult: '+this.multiplier+' weight: '+this.weight +' bestuser: '+this.bestuser+' prebestuser: '+ this.prebestuser);
+        console.log('mult: '+this.multiplier+' weight: '+this.weight +' bestuser: '
+          +this.bestuser+' prebestuser: '+ this.prebestuser);
         this.score = Math.round(this.multiplier * this.weight);
         if (this.bestuser !== this.prebestuser && this.prebestuser !== 'nobody') {
           this.lowernumbest(codeDocRef.collection('userstats').doc(this.prebestuser));
         }
         console.log('medal: '+this.medals[this.multiplier - 1] + ' score: '+this.score);
-        return this.updateUserStats(userCodeDocRef, difDocRef.collection('times').where('userid', '==', user.uid));
+        this.initStage();
+        return this.updateUserStats(userCodeDocRef, difDocRef.collection('times')
+          .where('userid', '==', user.uid));
     }).catch(e=>console.log('globalstatserror: ' + e.message));
+  }
+  public initStage(): void {
+    const puzzleData = this.puzzleData;
+    const time = this.time;
+    const best = puzzleData.best;
+    const num = puzzleData.numsolved;
+    if (num === 1) {
+      this.times = [{
+          time: puzzleData.q50.t,
+          multiplier: 4
+      }];
+    } else if (num === 2) {
+      if (time > best) {
+        this.times = [{
+            time: time,
+            multiplier: 3
+          },{
+            time: best,
+            multiplier: 4
+          }];
+      } else {
+        this.times = [{
+            time: puzzleData.q50.t,
+            multiplier: 3
+          }, {
+            time: best,
+            multiplier: 4
+          }];
+      }
+    } else {
+      this.times = [{
+          time: puzzleData.q75.t,
+          multiplier: 2
+        }, {
+          time: puzzleData.q50.t,
+          multiplier: 3
+        }, {
+          time: puzzleData.q25.t,
+          multiplier: 4
+      }];
+      if (num > 10) {
+        this.times.push({
+          time: puzzleData.q10.t,
+          multiplier: 5
+      });
+      }
+      if (num > 20) {
+        this.times.push({
+          time: puzzleData.q05.t,
+          multiplier: 6
+        });
+      }
+    }
   }
   private addNumsolved(docRef: firebase.firestore.DocumentReference): Promise<any> {
     return this.db.firestore.runTransaction(transaction => 

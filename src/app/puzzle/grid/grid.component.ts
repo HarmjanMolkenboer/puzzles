@@ -1,17 +1,9 @@
 import { Component, ViewChild, ElementRef, OnInit, HostListener, ChangeDetectionStrategy, OnChanges, AfterViewInit } from '@angular/core';
 import {Square} from '../model/model.square';
-import {Move} from '../model/model.move';
-import {Action} from '../model/model.action';
-import {Puzzle} from '../model/model.puzzle';
-import {Row} from '../model/model.row';
 import {PuzzleService} from '../../puzzles-home/puzzle.service';
-import {PuzzleController} from '../controller/abstract/puzzle.controller';
-import {NumbersPuzzleController} from '../controller/abstract/numbers-puzzle.controller';
-import {PuzzleStatsService} from '../../db/puzzle-stats.service';
 
 // import {GridType} from './grid/grid-type';
 import {DrawingsService} from '../drawings.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-grid',

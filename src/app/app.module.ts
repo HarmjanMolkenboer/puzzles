@@ -31,7 +31,7 @@ import { MedalPipe } from './medal.pipe';
 import { PuzzlenamePipe } from './puzzlename.pipe';
 import { PlayComponent } from './puzzle/play/play.component';
 import { ControlPanelComponent } from './puzzle/control-panel/control-panel.component';
-import { ResultPanelComponent } from './puzzle/result-panel/result-panel.component';
+// import { ResultPanelComponent } from './puzzle/result-panel/result-panel.component';
 import { GridComponent } from './puzzle/grid/grid.component';
 // const puzzles=['battleship', 'tents'];
 const appRoutes: Routes = [
@@ -61,7 +61,7 @@ const appRoutes: Routes = [
     PuzzlenamePipe,
     PlayComponent,
     ControlPanelComponent,
-    ResultPanelComponent,
+    // ResultPanelComponent,
     GridComponent
   ],
   imports: [

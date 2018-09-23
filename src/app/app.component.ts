@@ -24,6 +24,7 @@ export class AppComponent{
   isPuzzleActive() {
     return window.localStorage.getItem('activePuzzle') !== null;
   }
+
   // public setLogin(b: boolean) {
   //   this.login = b ? 'My Account' : 'Login';
   // }

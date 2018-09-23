@@ -91,6 +91,31 @@ export class DrawingsService {
   drawEmptyDrawing(drawing: SVGPathElement): void {
     drawing.setAttribute('d', '');
   }
+  public getShipPath(length: number, j: number): string {
+    if (length === 1) {
+      return 'M50 95 A45 45 0 1 0 50 5 A45 45 0 1 0 50 95';
+
+      // return `M${50+100*length*j} 95 A45 45 0 1 0 ${50+100*length*j} 5 
+      //   A45 45 0 1 0 ${50+100*length*j} 95`;
+    } else {
+      let s = 'M50,5 A45,45 0 1,0 50,95 L95,95 L95,5 Z';
+
+      // let s = `M${50+100*length*j} 5 A45 45 0 1 0 ${50+100*length*j} 95 
+      // L${95+100*length*j} 95 L${95+100*length*j} 5 Z`;
+      let i = 1;
+      for (; i < length - 1; i++) {
+        s += ' M' + i + '05 5 L' + i + '95 5 L' + i + '95 95 L' + i + '05 95 Z';
+
+        // s = `${s} M${100*length*j+(100*i+5)} 5 L${100*length*j+(100*i+95)} 5 
+        // L${100*length*j+(100*i+95)} 95 L${100*length*j+(100*i+5)} 95 Z`;
+      }
+      s += ' M' + i + '50 95 A45 45 0 1 0 ' + i + '50 5 L' + i + '05 5 L' + i + '05 95 Z'
+      // s = `${s} M${100*length*j+(100*i+50)} 95 
+      // A45 45 0 1 0 ${100*length*j+(100*i+50)} 5 
+      // L${100*length*j+(100*i+5)} 5 L${100*length*j+(100*i+5)} 95 Z`;
+      return s;
+    }
+  }
   public getShip(length: number): SVGPathElement {
     const drawing: SVGPathElement = this.getEmptyPath();
     drawing.setAttribute('stroke-width', '0');
@@ -102,7 +127,7 @@ export class DrawingsService {
       for (; i < length - 1; i++) {
         drawing.setAttribute('d', drawing.getAttribute('d') + ' M' + i + '05,5 L' + i + '95,5 L' + i + '95,95 L' + i + '05,95 Z');
       }
-      drawing.setAttribute('d', drawing.getAttribute('d') + 'M' + i + '50,95 A45,45 0 1,0 ' + i + '50,5 L' + i + '05,5 L' + i + '05,95 Z');
+      drawing.setAttribute('d', drawing.getAttribute('d') + ' M' + i + '50,95 A45,45 0 1,0 ' + i + '50,5 L' + i + '05,5 L' + i + '05,95 Z');
     }
     drawing.setAttribute('stroke-width', '0');
     return drawing;

@@ -1,7 +1,41 @@
 <!-- <app-puzzle-component></app-puzzle-component> -->
 <div class="entire">
   <h2>Welcome to {{name | puzzlename | titlecase}}</h2>
-  <span class="explination" *ngFor="let line of explination">
+  <fieldset *ngIf="!showresults">
+    <h2>Congratulations!!!</h2>
+    <p *ngIf="puzzleStatsService.time > puzzleStatsService.puzzleData.best">You have set the best time for this puzzle!!!</p>
+    <p *ngIf="puzzleStatsService.time <= puzzleStatsService.puzzleData.best">You have solved this puzzle.</p>
+    <p>Your time is: {{puzzleStatsService.time | puzzletime:true}}</p>
+    <p>You have received a {{puzzleStatsService.multiplier|medal}} medal</p>
+    <p>Your score for this puzzle is: {{puzzleStatsService.score}} points.</p>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~STAGE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <svg width="100%" viewBox="-50 -100 600 300" >
+      <g *ngIf="{length: puzzleStatsService.times.length, 
+        dx:500/puzzleStatsService.times.length, 
+        dy:150/puzzleStatsService.times.length} as data">
+      <g *ngFor="let time of puzzleStatsService.times; let i=index">
+        <path class="stage"
+          attr.d="M{{data.dx*i}} {{data.dy*(data.length-i)}}
+          L{{data.dx*i}} {{data.dy*(data.length-i-1)}}
+          L{{data.dx*(i+1)}} {{data.dy*(data.length-i-1)}}"></path>
+        <text class="time-text" attr.x="{{data.dx*i}}" y=180>{{time.time | puzzletime:false}}</text>
+      <!-- ~~~~~~~~~~~~~~~~~~~~~STICKFIGURE ON STAGE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <path *ngIf="puzzleStatsService.multiplier === time.multiplier" class="stickfigure"
+          d="M-20 0 L0 -40 L20 0 M0 -40 L0 -70 M-20 -70 L0 -45 L20 -70 M0 -70  A15 15 0 1 0 0 -100 A15 15 0 1 0 0 -70"
+          attr.transform="translate({{data.dx*(i+0.5)}},{{data.dy*(data.length-i-1)}})"></path>
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~MEDALTEXT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <text class="medal-text" attr.x="{{data.dx*(i+0.5)}}" attr.y="{{data.dy*(data.length - i - 0.5)}}">{{time.multiplier|medal|uppercase}}</text>
+      </g>
+      <path class="stage" d="M0 150 L500 150 L500 0"></path>
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~STICKFIGURE OFF STAGE~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <path *ngIf="puzzleStatsService.multiplier === 1" class="stickfigure"
+        d="M-20 0 L0 -40 L20 0 M0 -40 L0 -70 M-20 -40 L0 -65 L20 -40 M0 -70  A15 15 0 1 0 0 -100 A15 15 0 1 0 0 -70"
+        transform="translate(-40,150)"></path>
+      <text class="time-text" attr.x="{{data.dx*data.length}}" y=180>{{puzzleStatsService.best | puzzletime:false}}</text>
+      </g>
+    </svg>
+</fieldset>
+  <span class="explination" *ngFor="let line of this.puzzleService.getExplination(this.name)">
     {{line}} <br/>
   </span>
   <br />
@@ -39,9 +73,6 @@
     <div><label>Personal Average Time: </label>{{userMedian | puzzletime:true}}</div>
     <!-- <div><label>Personal Average Ranking: </label>{{puzzleTypeStats.personalBestRanking}} / {{puzzleTypeStats.numberOfPlayers}}</div> -->
   </fieldset>
-  <button #play type="button" (click)="loadPuzzle()">Play Random Puzzle</button>
-  <button #rankings type="button" (click)="toggleRankings()">Toggle Rankings</button>
-
   <fieldset [class.noshow] = "!showrankings" class="rankings">
     <table #overall class="table">
       <tr>
@@ -66,4 +97,7 @@
       </tr>
     </table>
   </fieldset>
+  <button #play type="button" (click)="loadPuzzle()">Play Random Puzzle</button>
+  <button #rankings type="button" (click)="toggleRankings()">Toggle Rankings</button>
+
 </div>

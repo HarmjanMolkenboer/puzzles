@@ -38,8 +38,8 @@ export class PuzzlesHomeComponent implements OnInit {
   sizestrings = ['x'];
   dbdifs = ['0'];
   name: string;
-  explination: string[];
   showrankings = false;
+  showresults = false;
   users: string[];
   stats = [];
   list: firebase.firestore.DocumentData[];
@@ -48,7 +48,6 @@ export class PuzzlesHomeComponent implements OnInit {
     this.puzzleService.getPuzzle().example = true;
     const user = firebase.auth().currentUser;
     this.name = this.route.snapshot.paramMap.get('puzzle-name');
-    this.explination = this.puzzleService.getExplination(this.name);
     this.puzzleStatsService.getPuzzleDoc(this.name).then(data => {
       this.globalData = data;
       this.sizestrings = Object.keys(data).filter(k=>k.startsWith('s-'))
@@ -159,10 +158,11 @@ export class PuzzlesHomeComponent implements OnInit {
     puzzle.repr = this.puzzleStatsService.puzzleData.repr;
     puzzle.puzzleRef = puzzle.code + puzzle.size + ''+puzzle.dif + puzzle.id;
     puzzle.moveIndex = 0;
-    puzzle.color = 'black';
+    puzzle.color = 'gray';
     puzzle.moveIndex = 0;
     puzzle.moves = [];
     this.puzzleService.startPuzzle();
+
     this.router.navigate(['/play']);
   }
   //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //

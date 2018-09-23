@@ -6,25 +6,48 @@
     flex-wrap: wrap;
   }
   .grid {
-    width: 50rem;
-    height: 50rem;
+    width: 65vh;
+    height: 65vh;
   }
   .controls {
     overflow: hidden;
-    width: 50rem;
+    height: 35vh;
+    width: 65vh;
   }
+}
+@media (max-aspect-ratio: 65/100) {
+  .grid {
+    width: 100vw;
+    height: 100vw;
+  }
+  .controls {
+    overflow: hidden;
+    height: calc(100vh - 100vw);
+  }
+
 }
 @media screen and (orientation:landscape) {
   .play {
     flex-wrap: nowrap;
   }
   .grid {
-    width: 50rem;
-    height: 50rem;
+    width: 65vw;
+    height: 65vw;
   }
   .controls {
     overflow: hidden;
-    width: 35rem;
-    height: 45rem;
+    width: 35vw;
+    height: 65vw;
+  }
+}
+@media (min-aspect-ratio: 100/65) {
+  .grid {
+    width: 99vh;
+    height: 99vh;
+  }
+  .controls {
+    overflow: hidden;
+    width: calc(99vw - 99vh);
+    height: 100vh;
   }
 }

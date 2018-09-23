@@ -26,6 +26,8 @@ export class Puzzle {
   example: boolean;
   numberOfBorderValues: number;
   gridType: string;
+  numberOfMoves = 0;
+
   // times: any;
   moves: Move[];
   constructor(){}  // constructor() {

@@ -7,7 +7,6 @@ import {SudokuController} from '../puzzle/controller/sudoku.controller';
 import {TentsController} from '../puzzle/controller/tents.controller';
 import {HouseController} from '../puzzle/controller/house.controller';
 import { Puzzle } from '../puzzle/model/model.puzzle';
-import { TimeFlag } from '../db/puzzle-stats.service';
 import { PuzzleStatsService } from '../db/puzzle-stats.service';
 import { DrawingsService } from '../puzzle/drawings.service';
 import * as firebase from 'firebase/app';
@@ -304,14 +303,14 @@ export class PuzzleService {
     //   this.getPuzzleComponent().showResultsPanel();
     // });
   }
-  public setValue(sq: Square, newValue: number, isDrag: boolean, recalculate: boolean, newColor: string) {
+  public setValue(sq: Square, newValue: number, isDrag: boolean, recalculate: boolean, newColor: string): boolean {
     if (this.move === undefined) {
       this.move = new Move();
     }
     // console.log(newValue+ ' : '+(sq.getValue() === newValue) + ' | '+ (sq.getColor() !== newColor && !this.controller.canBeOverridden(sq, newValue)) + ' | '+(isDrag && !this.getController().canBeOverridden(sq, newValue) && newValue !== 0))
     if (sq.getValue() === newValue || (sq.getColor() !== newColor && !this.controller.canBeOverridden(sq, newValue))
       || (isDrag && !this.getController().canBeOverridden(sq, newValue) && newValue !== 0)) {
-      return;
+      return false;
     }
     if (sq.getOverridenColor() !== undefined) {
       const override = this.getController().getOverridenValue(sq, newValue, newColor, recalculate);
@@ -319,7 +318,7 @@ export class PuzzleService {
       newColor = override.color;
     }
     if (sq.getValue() === newValue) {
-      return;
+      return false;
     }
     if (newValue === 0) {
       newColor = undefined;
@@ -353,6 +352,7 @@ export class PuzzleService {
     if (recalculate) {
       this.getController().checkErrorsAndElements();
     }
+    return true;
   }
   public undo(): void {
     if(this.getPuzzle().moveIndex === 0) {
@@ -366,6 +366,7 @@ export class PuzzleService {
       this.getController().valueChanged(sq, oldValue);
     }
     this.getController().checkErrorsAndElements();
+    this.getPuzzle().numberOfMoves += move.actions.length;
     this.getPuzzle().moveIndex--;
     window.localStorage.setItem(this.getPuzzle().puzzleRef, JSON.stringify(this.getPuzzle()));
   }
@@ -392,6 +393,7 @@ export class PuzzleService {
     // maak redo onmogelijk:
     this.getPuzzle().moves.splice(this.getPuzzle().moveIndex);
     // voeg de move to
+    this.getPuzzle().numberOfMoves += this.move.actions.length;
     this.getPuzzle().moves.push(this.move);
     this.move = new Move();
     this.getPuzzle().moveIndex++;
@@ -435,6 +437,7 @@ export class PuzzleService {
         this.controller.drawSquare(sq, sq.getValue());
       }
     }
+    this.endMove();
     this.controller.checkErrorsAndElements();
     window.localStorage.setItem(this.getPuzzle().puzzleRef, JSON.stringify(this.getPuzzle()));
   }
@@ -446,7 +449,7 @@ export class PuzzleService {
   }
   public buttonClicked(text: string) {
     switch(text.toLowerCase()) {
-      case 'home':
+      case 'home': case 'exit':
         if (!this.activated){
           window.localStorage.removeItem('storedpuzzlekey');
         }
@@ -485,7 +488,7 @@ export class PuzzleService {
         puzzle.puzzleRef = puzzle.code + puzzle.size + ''+puzzle.dif + puzzle.id;
         puzzle.moveIndex = 0;
         puzzle.time = new Date().getTime();
-        puzzle.color = 'black';
+        puzzle.color = 'gray';
         puzzle.moveIndex = 0;
         puzzle.moves = [];
         window.localStorage.setItem('storedpuzzlekey', puzzle.puzzleRef);
@@ -514,6 +517,9 @@ export class PuzzleService {
       default: break;
     }
 
+  }
+  public getRouter(): Router {
+    return this.router;
   }
   // public getController() {
   //   return this.controller;

@@ -2,9 +2,7 @@ import {Row} from '../../model/model.row';
 import {PuzzleService} from '../../../puzzles-home/puzzle.service';
 import { DrawingsService } from '../../drawings.service';
 import { Puzzle } from '../../model/model.puzzle';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Square } from '../../model/model.square';
-import {NumbersPuzzleController} from './numbers-puzzle.controller';
 export abstract class PuzzleController {
   private height: number;
   private width: number;
@@ -25,6 +23,10 @@ export abstract class PuzzleController {
   totWidth: number;
   totHeight: number;
   decripted: number[];
+  elements = [];
+  elementDrawings = [];
+  elementScale: number;
+
   constructor(drawingsService: DrawingsService, puzzleService: PuzzleService) {
     this.drawingsService = drawingsService;
     this.puzzleService = puzzleService;
@@ -230,6 +232,9 @@ export abstract class PuzzleController {
     }
     return this.getSquare(sqx, sqy);
   }
+  public hasElements(): boolean {
+    return this.elements.length > 0;
+  }
   public getSquare(x: number, y: number): Square {
     if (y < 0 || y >= this.height || x < 0 || x >= this.width) {
       return undefined;
@@ -397,8 +402,15 @@ export abstract class PuzzleController {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   public puzzleSolved() {
-
-    this.getPuzzleService().puzzleSolved();
+    this.animate();
+    this.getPuzzleService().postTime().then(puzzleData => {
+        this.showResults = true;
+        this.puzzleService.getRouter().navigate(['/'+this.getPuzzleService().getPuzzle().name]);
+    });
+      //   this.showResults = true;
+      //   this.getPuzzleComponent().showResultsPanel();
+      // }
+    // this.getPuzzleService().puzzleSolved();
 
     // this.getPuzzleComponent().getRouter().navigate(['/'+this.getPuzzle().name]));
   }
