@@ -35,36 +35,47 @@
       </g>
     </svg>
 </fieldset>
+<fieldset class="explination">
+  <legend>Explination</legend>
+  <app-grid></app-grid>
+  <app-elements></app-elements>
   <span class="explination" *ngFor="let line of this.puzzleService.getExplination(this.name)">
     {{line}} <br/>
   </span>
   <br />
-  <fieldset class = "slider">
-    <legend align="center" for="slidersize">Select a Size</legend>
-    <input type="range"
-      id="slidersize"
-      name="size"
-      min="0" max={{maxSize}}
-      value={{sizeIndex}}
-      (input)="changeSize($event.target.value)">
-    <br />
-    <span class="slider-text">{{size | puzzlesize}}</span>
-  </fieldset>
-  <fieldset class="slider">
-    <legend align="center" for="sliderdif">Select a Difficulty</legend>
-    <input class="slider"
-      id="sliderdif"
-      type="range"
-      name="difficulty"
-      min="0" max={{maxDif}}
-      value={{difIndex}}
-      (input)="changeDifficulty($event.target.value)">
-    <br />
-    <span class="slider-text">{{difIndex | difficulty:maxDif}}</span>
-    <br />
-  </fieldset>
+</fieldset>
+<div class="slider-container">
+    <div class="slider center">
+      <fieldset>
+        <legend for="slidersize">Select a Size</legend>
+        <input type="range"
+          id="slidersize"
+          name="size"
+          min="0" max={{maxSize}}
+          value={{sizeIndex}}
+          (input)="changeSize($event.target.value)">
+        <br />
+        <span class="slider-text">{{size | puzzlesize}}</span>
+      </fieldset>
+    </div>
+    <div class="slider center">
+      <fieldset>
+        <legend for="sliderdif">Select a Difficulty</legend>
+        <input
+          id="sliderdif"
+          type="range"
+          name="difficulty"
+          min="0" max={{maxDif}}
+          value={{difIndex}}
+          (input)="changeDifficulty($event.target.value)">
+        <br />
+        <span class="slider-text">{{difIndex | difficulty:maxDif}}</span>
+        <br />
+      </fieldset>
+    </div>
+  </div>
   <fieldset class="stats">
-    <legend align="center" for="stats">Statistics</legend>
+    <legend for="stats">Statistics</legend>
     <!-- <legend class="statslegend">Puzzle Type Statistics</legend> -->
     <div><label>Global Best Time: </label>{{globalBest | puzzletime:true}}</div>
     <div><label>Personal Best Time: </label>{{userBest | puzzletime:true}}</div>

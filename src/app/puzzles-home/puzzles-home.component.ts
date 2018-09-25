@@ -46,6 +46,7 @@ export class PuzzlesHomeComponent implements OnInit {
   lastSorted = {type: undefined, asc: false};
   ngOnInit(): void {
     this.puzzleService.getPuzzle().example = true;
+    this.puzzleService.activated = false;
     const user = firebase.auth().currentUser;
     this.name = this.route.snapshot.paramMap.get('puzzle-name');
     this.puzzleStatsService.getPuzzleDoc(this.name).then(data => {
@@ -70,8 +71,8 @@ export class PuzzlesHomeComponent implements OnInit {
     }).then(() => {
       const user = firebase.auth().currentUser;
       if (user === null) {
-        this.userBest = 'please log in or register to compete';
-        this.userMedian = 'please log in or register to compete';
+        this.userBest = 'please log in or register if you wish to compete';
+        this.userMedian = 'please log in or register if you wish to compete';
         this.reloadStats();
       } else {
         this.puzzleStatsService.getUserDoc(this.name, firebase.auth().currentUser).then(data => {

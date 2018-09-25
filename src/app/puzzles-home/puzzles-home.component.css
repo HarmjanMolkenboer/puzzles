@@ -1,20 +1,37 @@
-.entire{
+.explination {
+  width: 50%;
+}
+.center{
   text-align: center;
 }
-.statslegend{
-  text-align: center;
+.slider{
+  width: 50%;
+  display: inline-block;
 }
 .slider-text {
-  font: 30px sans-serif;
+  font: 24px sans-serif;
+}
+.slider-container {
+  width: 100%;
+}
+legend {
+  font-size: 16px;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 .explination{
-  font: 20px sans-serif;
+  font: 14px sans-serif;
+  text-align: initial;
+}
+.stats {
+  font-size: 16px;
 }
 input[type=range] {
   height: 38px;
   -webkit-appearance: none;
   margin: 10px 0;
-  width: 50%;
+  width: 100%;
 }
 input[type=range]:focus {
   outline: none;
@@ -23,7 +40,7 @@ input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 10px;
   cursor: pointer;
-  animate: 0.2s;
+  transition: 0.2s;
   box-shadow: 1px 1px 1px #000000;
   background: #3071A9;
   border-radius: 5px;
@@ -47,7 +64,7 @@ input[type=range]::-moz-range-track {
   width: 100%;
   height: 10px;
   cursor: pointer;
-  animate: 0.2s;
+  transition: 0.2s;
   box-shadow: 1px 1px 1px #000000;
   background: #3071A9;
   border-radius: 5px;
@@ -66,7 +83,7 @@ input[type=range]::-ms-track {
   width: 100%;
   height: 10px;
   cursor: pointer;
-  animate: 0.2s;
+  transition: 0.2s;
   background: transparent;
   border-color: transparent;
   color: transparent;

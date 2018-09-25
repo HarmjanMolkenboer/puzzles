@@ -21,8 +21,8 @@ export class GridComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('gridlayer') gridLayerRef: ElementRef;
   constructor(public puzzleService: PuzzleService, private drawingsService: DrawingsService) { }
   ngOnInit() {
-    this.puzzleService.squares = [];
-    this.puzzleService.rows = [];
+    // this.puzzleService.squares = [];
+    // this.puzzleService.rows = [];
     // this.gridLayerRef.nativeElement.addEventListener("mousemove", this.onMousemove, false);
     let puzzle = this.getPuzzleService().getPuzzle();
     this.puzzleRef.nativeElement.oncontextmenu = e => e.preventDefault();
@@ -227,7 +227,7 @@ export class GridComponent implements OnInit, OnChanges, AfterViewInit {
         this.redo();
       }
       if (puzzle.color === 'black') {
-        puzzle.color = this.puzzleService.colorlist[0];
+        puzzle.color = this.puzzleService.getColorList()[0];
       }
 
     // }

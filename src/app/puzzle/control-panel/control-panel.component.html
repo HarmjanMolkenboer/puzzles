@@ -12,7 +12,7 @@
           <button class="knop l-50 p-33" (click)="exit()">{{"exit" | uppercase}}</button>
           <button class="knop l-100 p-33" (click)="restart()">{{"restart" | uppercase}}</button>
           <button class="knop l-100 p-50" (click)="eraseErrors()">{{"erase errors" | uppercase}}</button>
-          <button class="knop l-100 p-50" (click)="buttonClicked('erase color')">{{"erase color" | uppercase}}</button>
+          <button class="knop l-100 p-50" (click)="eraseColor()">{{"erase color" | uppercase}}</button>
           <div class="custom-radios">
             <div class="color-button" *ngFor="let color of colorlist; let i=index">
               <input type="radio" id={{color}} name="color" 
@@ -34,26 +34,22 @@
         <div>
           <button class="knop" [ngStyle]="{'background-color': puzzleService.getPuzzle().color}"
           *ngFor="let button of numberButtons; let i=index" 
-          (click)="buttonClicked(''+button.number, true)">
+          (click)="numberButtonClicked(''+button.number, true)">
             {{button.number}}
           </button>
         </div>
-        <button class="knop p-50 l-50" [ngStyle]="{'background-color': puzzleService.getPuzzle().color}" (click)="buttonClicked('undo')" >{{"undo" | uppercase}}</button>
-        <button class="knop p-50 l-50" [ngStyle]="{'background-color': puzzleService.getPuzzle().color}" (click)="buttonClicked('redo')">{{"redo" | uppercase}}</button>
+        <button class="knop p-50 l-50" 
+          [ngStyle]="{'background-color': puzzleService.getPuzzle().color}" 
+          (click)="undo()"
+          [class.inactive]="puzzleService.getPuzzle().moveIndex === 0"
+          >{{"undo" | uppercase}}</button>
+        <button class="knop p-50 l-50" 
+          [ngStyle]="{'background-color': puzzleService.getPuzzle().color}" 
+          (click)="redo()"
+          [class.inactive]="puzzleService.getPuzzle().moveIndex === puzzleService.getPuzzle().moves.length"
+          >{{"redo" | uppercase}}</button>
         <div #elementsPanel class="elementContainer">
-            <div class="superBoten" *ngFor="let superElementGroup of puzzleService.getController().elementDrawings">
-              <div class="boten" *ngFor="let elementGroup of superElementGroup">
-                <span class="boot" *ngFor="let element of elementGroup">
-                  <span>
-                    <svg class="bootdeel" *ngFor="let part of element"
-                      viewBox="5 5 95 95"
-                      attr.width="{{69 * puzzleService.getController().elementScale}}%">
-                    <path attr.d={{part}}></path>
-                    </svg>
-                  </span>
-                </span>
-              </div>
-            </div>
+            <app-elements></app-elements>
           </div>
       </div>
 </div>

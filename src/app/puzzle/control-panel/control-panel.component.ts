@@ -10,10 +10,7 @@ export class ControlPanelComponent implements OnInit {
   @ViewChild('elementsPanel') elementsRef: ElementRef;
   public showMenu=false;
   colorlist = ['gray', 'blue', 'green', 'darkorange', 'deeppink'];
-  colorButtons = [];
-  // color: string;
   numberButtons = [];
-  numberlist = [];
   horizontal = true;
   activated = true;
   constructor(public puzzleService: PuzzleService, private changeDetector: ChangeDetectorRef){}
@@ -30,10 +27,8 @@ export class ControlPanelComponent implements OnInit {
   colorButtonClicked(color: string){
     this.puzzleService.getPuzzle().color = color;
   }
-  public buttonClicked(text: string) {
-    this.puzzleService.buttonClicked(text);
-    this.showMenu = false;
-    this.detectChanges();
+  public numberButtonClicked (num: string) {
+    this.puzzleService.numberButtonClicked(num);
   }
   public exit() {
     if (confirm("are you sure?")) {
@@ -41,8 +36,20 @@ export class ControlPanelComponent implements OnInit {
       this.showMenu = false;
     }
   }
+  public undo() {
+    this.puzzleService.undo();
+  }
+  public redo() {
+    this.puzzleService.redo();
+  }
+  public eraseColor() {
+    this.puzzleService.eraseColor();
+    this.showMenu = false;
+  }
   public eraseErrors() {
-    alert('erase errors');
+    if (confirm('Are you sure you want to see the solution?\nYour score will not be posted.')) {
+      this.puzzleService.eraseErrors();
+    }
     this.showMenu = false;
   }
   public showHelp() {
@@ -50,11 +57,10 @@ export class ControlPanelComponent implements OnInit {
     this.showMenu = false;
   }
   public restart(){
-    alert('restart');
+    this.puzzleService.restart();
+    // alert('restart');
   }
   public getElementsSVG(): SVGElement {
-
-    // alert('hey'+(this.elementsRef === undefined))
     return this.elementsRef.nativeElement;
   }
   public detectChanges(): void {

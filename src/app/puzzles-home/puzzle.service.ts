@@ -25,13 +25,10 @@ export class PuzzleService {
   // private moveIndex: number;
   activated = true;
   highlightedSquare: Square;
-  colorlist = ['gray', 'blue', 'green', 'darkorange', 'deeppink'];
-  squares: Square[];
-  rows = [];
+  // colorlist = ['gray', 'blue', 'green', 'darkorange', 'deeppink'];
   public controller: PuzzleController;
-  // private fs  = require('fs');
-
-
+  squares = [];
+  rows = [];
   constructor(private db: AngularFirestore,
     private puzzleStatsService: PuzzleStatsService,
     private drawingsService: DrawingsService,
@@ -51,17 +48,6 @@ export class PuzzleService {
   getControlPanel(): ControlPanelComponent {
     return this.controlPanel;
   }
-  addSquare(square: Square){
-    this.squares.push(square);
-  }
-  addRow(row: Row) {
-    this.rows.push(row);
-    if (row.x === undefined) {
-      this.getController().getSquares().filter(s=>s.getY() == row.y).forEach(s=>{
-      });
-    }
-  }
-
   public getRange(beginIn:number, endEx: number): number[] {
     return Array.from(Array(endEx - beginIn),(x,i)=>i + beginIn);
   }
@@ -227,6 +213,8 @@ export class PuzzleService {
     const size = this.puzzle.size;
     const dif = this.puzzle.dif;
     const user = firebase.auth().currentUser;
+    this.squares = [];
+    this.rows = [];
     if (user !== null) {
       const docRef = this.db.collection('puzzlecodes').doc(this.puzzle.code)
         .collection('userstats').doc(user.uid).ref;
@@ -247,12 +235,17 @@ export class PuzzleService {
   }
   public postTime(): Promise<any> {
     const user = firebase.auth().currentUser;
+    const puzzle = this.puzzle;
+    puzzle.nextId = this.puzzleStatsService.convertNumberToString((puzzle.userNum + Number.parseInt(puzzle.id, 10)) % puzzle.numPuzzles);
     if (user === null) {
+      alert('Time is not posted, since you are not logged in');
       return Promise.resolve('Time is not posted, since you are not logged in');
     }
-    const puzzle = this.puzzle;
+    if (puzzle.time === 0) {
+      alert('Time is not posted, since you have used erase errors');
+      return Promise.resolve('Time is not posted, since you have used erase errors');
+    }
     // alert(puzzle.userNum + ' '+ puzzle.numPuzzles)
-    puzzle.nextId = this.puzzleStatsService.convertNumberToString((puzzle.userNum + Number.parseInt(puzzle.id, 10)) % puzzle.numPuzzles);
     // const docId = puzzle.code + puzzle.size +''+puzzle.dif;
     const newTimeInSeconds = (new Date().getTime() - puzzle.time) / 1000;
 
@@ -307,7 +300,6 @@ export class PuzzleService {
     if (this.move === undefined) {
       this.move = new Move();
     }
-    // console.log(newValue+ ' : '+(sq.getValue() === newValue) + ' | '+ (sq.getColor() !== newColor && !this.controller.canBeOverridden(sq, newValue)) + ' | '+(isDrag && !this.getController().canBeOverridden(sq, newValue) && newValue !== 0))
     if (sq.getValue() === newValue || (sq.getColor() !== newColor && !this.controller.canBeOverridden(sq, newValue))
       || (isDrag && !this.getController().canBeOverridden(sq, newValue) && newValue !== 0)) {
       return false;
@@ -324,9 +316,7 @@ export class PuzzleService {
       newColor = undefined;
     }
     const puzzle = this.getPuzzle();
-    // console.log(puzzle.moves.length - 1 + ' vs ' + puzzle.moveIndex)
     const preMove = puzzle.moves[puzzle.moveIndex - 1];
-    // const preMove = puzzle.moves[puzzle.moves.length - 1];
     // als de gebruiker meerdere malen achter elkaar hetzelfde vakje heeft gewijzigd...
     const lastChangedSquare = preMove === undefined ? undefined : this.controller.getSquare(preMove.actions[0].x, preMove.actions[0].y);
     if (this.move.actions.length == 0 && preMove !== undefined && preMove.actions.length === 1 && lastChangedSquare === sq
@@ -400,9 +390,8 @@ export class PuzzleService {
     window.localStorage.setItem(this.getPuzzle().puzzleRef, JSON.stringify(this.getPuzzle()));
     this.getControlPanel().detectChanges();
   }
-
   public getColorList() {
-    return this.colorlist;
+    return this.controlPanel.colorlist;
   }
   public getPuzzle() {
     return this.puzzle;
@@ -430,8 +419,8 @@ export class PuzzleService {
     // window.localStorage.setItem(this.getPuzzleService().getPuzzle().puzzleRef, JSON.stringify(this.getPuzzleService().getPuzzle()));
     // this.getPuzzleService().getPuzzle().color = oldColor;
   }
-  private eraseColor(): void {
-    for (const sq of this.controller.getSquares()){
+  public eraseColor(): void {
+    for (const sq of this.controller.getSquares()) {
       if (sq.getColor() === this.getPuzzle().color) {
         this.setValue(sq, 0, false, false, this.getPuzzle().color);
         this.controller.drawSquare(sq, sq.getValue());
@@ -441,11 +430,48 @@ export class PuzzleService {
     this.controller.checkErrorsAndElements();
     window.localStorage.setItem(this.getPuzzle().puzzleRef, JSON.stringify(this.getPuzzle()));
   }
+  public eraseErrors(): void {
+    for (const sq of this.controller.getSquares()) {
+      while (sq.getValue() !== 0 && (sq.getSolutionValue() & sq.getValue()) === 0) { 
+        this.clearValue(sq, sq.getColor());
+      }
+    }
+    this.endMove();
+    this.controller.checkErrorsAndElements();
+    this.puzzle.time = 0;
+    window.localStorage.setItem(this.getPuzzle().puzzleRef, JSON.stringify(this.getPuzzle()));
+  }
+  public restart(): void {
+    for (const sq of this.controller.getSquares()) {
+      if (sq.getValue() !== 0 && sq.getColor() !== 'black') { 
+        do {
+          this.clearValue(sq, sq.getColor());
+        } while (sq.getValue() !== 0);
+      }
+    }
+    this.endMove();
+  }
   private setAllActive(active) {
     this.activated = active;
   }
-  public numberClicked(n: number) {
-    this.getController().numberClicked(n);
+  public numberButtonClicked(text: string) {
+    switch (text.toLowerCase()) {
+      case '1': case '2': case '3': case '4': case '5': case '6': case '7':
+      case '8': case '9':
+        this.getController().numberClicked(Number.parseInt(text));
+        break;
+      case 'x':
+        this.getController().numberClicked(0);
+        break;
+      case 'c':
+        this.clearValue(this.getController().getSelectedSquare(), this.getPuzzle().color);
+        break;
+      default:
+        alert('oeps iets anders geklikt: '+text)
+    }
+  }
+  private clearValue(sq:Square, color: string) {
+    this.setValue(sq, 0, false, true, color);
   }
   public buttonClicked(text: string) {
     switch(text.toLowerCase()) {
@@ -454,31 +480,6 @@ export class PuzzleService {
           window.localStorage.removeItem('storedpuzzlekey');
         }
         this.router.navigate(['../../home']);
-        break;
-      case 'show':
-        if(confirm('Are you sure you want to see the solution?\nYour score will not be posted.')) {
-          this.showSolution();
-          this.setAllActive(false);
-        }
-        break;
-      case 'erase color':
-        this.eraseColor();
-        break;
-      case 'undo':
-        this.undo();
-        break;
-      case 'redo':
-        this.redo();
-        break;
-      case '1': case '2': case '3': case '4': case '5': case '6': case '7':
-      case '8': case '9':
-        this.numberClicked(Number.parseInt(text));
-        break;
-      case 'x':
-        this.numberClicked(0);
-        break;
-      case 'c':
-        this.setValue(this.getController().getSelectedSquare(), 0, false, true, this.getPuzzle().color);
         break;
       case 'new puzzle':
         const puzzle = this.getPuzzle();

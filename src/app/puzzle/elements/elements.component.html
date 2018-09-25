@@ -1,0 +1,13 @@
+<div class="superBoten" *ngFor="let superElementGroup of puzzleService.getController().elementDrawings">
+    <div class="boten" *ngFor="let elementGroup of superElementGroup">
+      <span class="boot" *ngFor="let element of elementGroup">
+        <span>
+          <svg class="bootdeel" *ngFor="let part of element"
+            viewBox="5 5 95 95"
+            attr.width="{{69 * puzzleService.getController().elementScale}}%">
+          <path attr.d={{part}}></path>
+          </svg>
+        </span>
+      </span>
+    </div>
+  </div>

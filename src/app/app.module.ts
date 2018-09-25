@@ -33,6 +33,7 @@ import { PlayComponent } from './puzzle/play/play.component';
 import { ControlPanelComponent } from './puzzle/control-panel/control-panel.component';
 // import { ResultPanelComponent } from './puzzle/result-panel/result-panel.component';
 import { GridComponent } from './puzzle/grid/grid.component';
+import { ElementsComponent } from './puzzle/elements/elements.component';
 // const puzzles=['battleship', 'tents'];
 const appRoutes: Routes = [
   { path: 'play', component: PlayComponent},
@@ -62,7 +63,8 @@ const appRoutes: Routes = [
     PlayComponent,
     ControlPanelComponent,
     // ResultPanelComponent,
-    GridComponent
+    GridComponent,
+    ElementsComponent
   ],
   imports: [
     RouterModule.forRoot(
